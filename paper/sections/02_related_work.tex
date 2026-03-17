@@ -1,0 +1,98 @@
+% =============================================================================
+% Section II — Related Work
+% =============================================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Traditional Leak Detection Methods}
+Early approaches to leak detection in water distribution systems relied
+primarily on hydraulic modeling and pressure transient analysis
+\cite{colombo2009review}. These methods simulate expected pressure
+profiles under normal operating conditions and flag deviations exceeding
+a fixed threshold. While effective in well-instrumented networks with
+accurate topology models, they require detailed knowledge of pipe
+geometry, material properties, and demand patterns --- information
+that is rarely available in its entirety for real urban networks.
+Acoustic correlation methods improved physical localization accuracy
+but demand costly specialized hardware and skilled personnel for
+interpretation, limiting their scalability.
+
+\subsection{Statistical and Shallow Machine Learning Methods}
+The emergence of SCADA systems and permanent pressure monitoring
+enabled data-driven approaches. Statistical process control methods,
+including CUSUM and EWMA charts, were applied to detect sustained
+shifts in pressure or flow signals \cite{mounce2011novelty}.
+Support Vector Machines (SVM) and Random Forests were subsequently
+evaluated on engineered feature sets derived from pressure and
+flow measurements, showing improved detection rates over threshold
+rules. However, these methods treat each timestep as an independent
+observation, discarding the temporal context that is central to
+leak behavior. Feature engineering in these works is manual and
+domain-specific, limiting transferability across different network
+configurations.
+
+\subsection{Deep Learning for Time-Series Classification}
+Convolutional Neural Networks applied to raw 1D time-series have
+achieved state-of-the-art results across multiple industrial
+fault detection tasks \cite{lei2020applications}. The key advantage
+over shallow methods is automatic feature extraction: convolutional
+filters learn discriminative local patterns directly from the data
+without manual engineering. Fawaz et al. \cite{fawaz2019deep}
+conducted a comprehensive benchmark of deep learning architectures
+for time-series classification, establishing 1D-CNN and ResNet
+variants as strong baselines across 85 datasets.
+
+Recurrent architectures, particularly LSTM \cite{hochreiter1997long}
+and its bidirectional variant (BiLSTM), address the sequential
+dependency structure of time-series data that CNNs cannot fully
+capture with fixed-size kernels. Karim et al. \cite{karim2018lstm}
+demonstrated that hybrid LSTM-FCN models, combining recurrent
+and convolutional pathways in parallel, outperform either
+architecture in isolation on sensor classification benchmarks.
+These findings motivate our sequential CNN-BiLSTM design, where
+the convolutional block feeds into the recurrent block rather
+than operating in parallel.
+
+\subsection{Attention Mechanisms in Time-Series}
+The self-attention mechanism, introduced in the Transformer
+architecture for natural language processing \cite{vaswani2017attention},
+has been adapted for time-series tasks to assign learned scalar
+importance weights to individual timesteps. Unlike global average
+pooling, attention-weighted aggregation allows the model to
+selectively focus on the most diagnostic temporal positions,
+improving both predictive performance and interpretability.
+Several works have incorporated attention into hybrid CNN-LSTM
+models for industrial anomaly detection, reporting consistent
+improvements in F1-score and providing heatmap-style explanations
+that align with domain expert expectations.
+
+\subsection{Class Imbalance in Anomaly Detection}
+Leak and fault events are inherently rare in healthy operating
+systems, creating severe class imbalance that standard training
+objectives fail to handle. Oversampling techniques such as SMOTE
+\cite{chawla2002smote} generate synthetic minority samples but
+risk introducing unrealistic interpolations in multivariate
+sensor space. Cost-sensitive learning assigns higher misclassification
+penalties to the minority class, improving recall at the cost of
+precision. Lin et al. \cite{lin2017focal} proposed Focal Loss as
+an elegant alternative: by dynamically down-weighting the loss
+contribution of easy, correctly-classified majority samples, it
+focuses gradient updates on hard, misclassified minority examples
+without requiring data augmentation. We adopt Focal Loss in this
+work, combined with decision threshold tuning on the validation
+set, as the primary strategy for handling the 98.1\%/1.9\%
+Normal/Leak imbalance in our dataset.
+
+\subsection{Deep Learning for Water Networks}
+Recent works have begun applying deep learning specifically to
+water distribution anomaly detection. Autoencoder-based approaches
+model normal operating patterns and flag high reconstruction error
+as anomalous \cite{hu2021review}, but require careful calibration
+of the reconstruction threshold and provide no temporal
+interpretability. Supervised CNN and LSTM models have been
+evaluated on the BattLeDIM benchmark dataset \cite{vrachimis2020battledim},
+confirming the superiority of deep sequential models over
+threshold-based baselines. Our work extends this line of research
+by combining the complementary strengths of CNN, BiLSTM, and
+attention in a unified supervised architecture, while explicitly
+addressing class imbalance through Focal Loss.
