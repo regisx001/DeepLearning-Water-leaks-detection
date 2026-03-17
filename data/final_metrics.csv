@@ -1,0 +1,7 @@
+Metric,Value
+AUC-ROC,0.6364
+AUC-PR,0.5008
+Precision (Leak),0.2821
+Recall (Leak),1.0
+F1 (Leak),0.44
+Accuracy,0.2821
