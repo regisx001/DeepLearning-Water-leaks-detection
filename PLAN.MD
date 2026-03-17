@@ -11,7 +11,7 @@ From the analysis of your CSV, here are the exact numbers you're working with fo
 This is an extreme imbalance problem. Your entire project strategy must be built around it.
 
 ***
-## Phase 1 — EDA & Data Analysis (`01_eda.ipynb`)
+## Phase 1 — EDA & Data Analysis (`01-Exploratory-Data-Analysis.ipynb`)
 Your existing EDA notebook already covers this. The key findings to **document in the paper**:
 - Pressure mean drops from 3.26 bar (Normal) → 2.19 bar (Leak) — primary signal
 - Flow Rate increases slightly (124 → 149 L/s) — secondary signal
@@ -169,7 +169,7 @@ The **ablation study in Section 6** is what makes this publishable: show CNN →
 ## Notebook Structure
 ```
 water-leak-detection/
-├── 01_eda.ipynb                ← already done ✓
+├── 01-Exploratory-Data-Analysis.ipynb                ← already done ✓
 ├── 02_feature_engineering.ipynb  ← NEW
 ├── 03_windowing.ipynb          ← refactor (window=20, step=5, last-label)
 ├── 04_model_training.ipynb     ← NEW (CNN-BiLSTM+Attention + Focal Loss)

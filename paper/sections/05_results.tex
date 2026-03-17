@@ -1,0 +1,118 @@
+% =============================================================================
+% Section V – Results
+% =============================================================================
+\section{Results}
+
+\subsection{Training Performance}
+
+Training curves from the best-performing fold are shown in Figure~\ref{fig:training}.
+The model converges within 15--30 epochs, with early stopping preventing overfitting
+on the small training set.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{images/training_curves.png}
+\caption{Training and validation loss/accuracy curves.}
+\label{fig:training}
+\end{figure}
+
+Training accuracy typically reaches 90--95\% within the first 10 epochs, while
+validation accuracy plateaus at a lower level. This gap is expected: the model sees
+only 8 sensors during training and must generalize to 2 entirely unseen sensors with
+potentially different leak characteristics.
+
+\subsection{Threshold Tuning}
+
+The threshold sensitivity analysis (Figure~\ref{fig:threshold}) for the best-performing
+fold shows how the F1-score varies with the decision boundary.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{images/threshold_tuning.png}
+\caption{F1-Score as a function of decision threshold.}
+\label{fig:threshold}
+\end{figure}
+
+In practice, the optimal threshold depends on the \textbf{application requirements}: in
+safety-critical leak detection, a lower threshold (higher recall, more false alarms) may
+be preferable, while in cost-sensitive deployments a higher threshold is appropriate.
+
+\subsection{Per-Fold Analysis}
+
+Table~\ref{tab:per_fold} presents the per-fold results of the 5-fold GroupKFold
+cross-validation.
+
+\begin{table}[H]
+\centering
+\caption{Per-fold classification results (GroupKFold CV).}
+\label{tab:per_fold}
+\begin{tabular}{@{}clcccc@{}}
+\toprule
+\textbf{Fold} & \textbf{Val Sensors} & \textbf{Acc} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} \\
+\midrule
+1 & S001, S009 & 1.000 & 1.000 & 1.000 & 1.000 \\
+2 & S002, S007 & 0.545 & 0.000 & 0.000 & 0.000 \\
+3 & S006, S010 & 0.905 & 0.905 & 1.000 & 0.950 \\
+4 & S005, S008 & 0.762 & 0.688 & 1.000 & 0.815 \\
+5 & S003, S004 & 0.333 & 0.333 & 1.000 & 0.500 \\
+\midrule
+\multicolumn{2}{l}{\textbf{Average $\pm$ Std}} & \textbf{0.709} & \textbf{0.585} & \textbf{0.800} & \textbf{0.653} \\
+ & & $\pm$0.242 & $\pm$0.372 & $\pm$0.400 & $\pm$0.370 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Fold 1} (S001, S009): Achieves perfect scores. Both sensors have
+    multiple leak events with clear temporal patterns.
+    \item \textbf{Fold 2} (S002, S007): The worst-performing fold. The model fails to
+    correctly identify the leak pattern, predicting everything as normal.
+    \item \textbf{Fold 3} (S006, S010): Near-perfect performance. S010 has the most
+    diverse leak patterns (5 leak events).
+    \item \textbf{Fold 5} (S003, S004): Poor performance. S003 has \textbf{zero leaks},
+    causing the model to over-predict leaks on its normal windows.
+\end{itemize}
+
+\subsection{Aggregated Classification Performance}
+
+Table~\ref{tab:results} presents the aggregated classification metrics across all 5 folds.
+
+\begin{table}[H]
+\centering
+\caption{Aggregated classification results (5-fold GroupKFold CV).}
+\label{tab:results}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
+\midrule
+Normal               & 0.63 & 0.45 & 0.52 & 38  \\
+Leak                 & 0.74 & 0.86 & 0.79 & 70  \\
+\midrule
+\textbf{Weighted Avg} & \textbf{0.70} & \textbf{0.71} & \textbf{0.70} & 108 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The aggregated confusion matrix (Figure~\ref{fig:cm}) shows \textbf{17 true negatives},
+\textbf{60 true positives}, \textbf{21 false positives}, and \textbf{10 false negatives}.
+The model achieves good recall for leak detection (85.7\%), while precision (74.1\%)
+indicates some false alarms.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{images/confusion_matrix.png}
+\caption{Aggregated confusion matrix (5-fold GroupKFold CV).}
+\label{fig:cm}
+\end{figure}
+
+\subsection{Summary of Results}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Accuracy}: 71.30\%
+    \item \textbf{Precision}: 74.07\%
+    \item \textbf{Recall}: 85.71\%
+    \item \textbf{F1-Score}: 0.79
+    \item \textbf{True Positives}: 60 out of 70 leak windows detected
+    \item \textbf{False Positives}: 21 out of 38 normal windows misclassified
+    \item \textbf{Per-fold variance}: Accuracy ranges from 33.3\% to 100\% across folds
+\end{itemize}

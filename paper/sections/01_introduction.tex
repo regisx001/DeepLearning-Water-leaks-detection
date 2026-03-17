@@ -1,0 +1,87 @@
+% =============================================================================
+% Section I – Introduction
+% =============================================================================
+\section{Introduction}
+
+\lettrine[lines=3, findent=0.1em, nindent=0em]{\textbf{W}}{ater} distribution networks
+are critical infrastructure systems that supply potable water to millions of people
+worldwide. However, these networks suffer from significant water losses due to
+\textbf{leaks and bursts} in aging pipelines. According to the World Bank, an estimated
+32 billion cubic meters of treated water are lost annually through leaks, representing
+approximately 30--50\% of the total water supplied in many developing countries. These
+losses translate into substantial economic costs, energy waste, and increased risk of
+water contamination.
+
+\subsection{Global Context}
+
+The scale of the water loss problem varies significantly across regions. In developed
+countries such as Japan and Germany, non-revenue water (NRW) rates are as low as
+5--10\%, thanks to modern infrastructure and proactive maintenance programs. In contrast,
+many countries in Africa, the Middle East, and South Asia experience NRW rates exceeding
+40\%, with some cities losing more than 60\% of their treated water before it reaches
+consumers.
+
+In \textbf{Morocco}, the challenge is particularly acute. According to the Moroccan
+Office National de l'Electricité et de l'Eau Potable (ONEE), the national NRW rate is
+estimated at approximately 28--35\%, with some rural and peri-urban networks reaching
+50\%. The country's arid and semi-arid climate makes every cubic meter of water precious,
+and the growing demand driven by urbanization and agricultural irrigation further amplifies
+the urgency. The city of \textbf{Tangier}, home to the Faculty of Sciences and Techniques
+(FST), faces particular water stress due to its rapid population growth and the limitations
+of the surrounding dam infrastructure.
+
+\subsection{Problem Statement}
+
+Traditional approaches to leak detection rely on \textbf{manual inspection}, acoustic
+sensors, and \textbf{threshold-based alarm systems}. While these methods can detect
+large-scale burst events, they often fail to identify small, gradual leaks that develop
+over time. Such early-stage leaks are particularly challenging because they produce
+\textbf{subtle, sustained deviations} in sensor readings---pressure drops, flow rate
+changes, and temperature variations---that are difficult to distinguish from normal
+operational fluctuations.
+
+The fundamental difficulty can be formalized as follows: given a multivariate time series
+$\mathbf{X} = \{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_T\}$ where each
+$\mathbf{x}_t \in \mathbb{R}^d$ represents $d$ sensor measurements at time $t$, the task
+is to predict a binary label $y_t \in \{0, 1\}$ indicating whether a leak is occurring.
+The challenge lies in the fact that leak-induced deviations may be smaller than the
+natural variance of the signals, making point-wise classification unreliable. Instead,
+the model must learn to recognize \textbf{temporal patterns}---sequences of subtle,
+correlated changes across multiple sensor channels---that are characteristic of leak events.
+
+\subsection{Deep Learning for Time-Series Anomaly Detection}
+
+Recent advances in \textbf{Machine Learning (ML)} and \textbf{Deep Learning (DL)} have
+opened new possibilities for automated anomaly detection in time-series data. In
+particular, \textbf{Convolutional Neural Networks (CNNs)} have shown remarkable ability
+to extract local temporal patterns from sequential data, making them well-suited for
+detecting the characteristic signatures of water leaks in sensor measurements. Unlike
+traditional methods, deep learning models can learn complex, non-linear relationships
+between multiple sensor signals simultaneously.
+
+The key advantage of 1D-CNNs over classical approaches is their ability to perform
+\textbf{automatic feature extraction}. Rather than requiring domain experts to manually
+design features (e.g., rolling averages, peak detection, spectral analysis), the
+convolutional filters learn to detect discriminative patterns directly from raw data.
+This property is particularly valuable in water distribution networks, where the
+signatures of different leak types may vary depending on pipe material, diameter,
+pressure regime, and soil conditions.
+
+\subsection{Contributions}
+
+In this study, we propose a \textbf{1D-CNN-based approach} for automatic water leak
+detection using multivariate time-series data from pressure, flow rate, and temperature
+sensors deployed across an urban water distribution network. Our methodology involves:
+(1) transforming raw sensor data into \textbf{sliding windows} to capture temporal
+context, (2) applying \textbf{feature normalization} for stable training, (3) training a
+compact CNN with \textbf{batch normalization} and \textbf{balanced class weights} to
+handle the inherent class imbalance, and (4) evaluating with \textbf{sensor-wise
+GroupKFold cross-validation} to ensure no data leakage between training and validation
+sets. The results demonstrate that our approach provides a solid baseline for leak
+detection, while highlighting the challenges of working with small-scale sensor datasets.
+
+Beyond the model itself, this work makes a \textbf{methodological contribution} by
+documenting the common pitfalls encountered during development---including data leakage
+through overlapping windows, label amplification from windowed labeling, and the
+overfitting risks inherent in small time-series datasets---and presenting principled
+solutions to each.

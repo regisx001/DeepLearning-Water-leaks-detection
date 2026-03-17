@@ -1,0 +1,58 @@
+% =============================================================================
+% Title Block  (spans both columns via \twocolumn[...])
+% =============================================================================
+\twocolumn[{
+    \begin{flushleft}
+        {\small
+        Department of Software Engineering\\
+        Faculty of Sciences and Techniques Tangier\\
+        Abdelmalek Essadi University, Morocco\\
+        19/02/2026\par
+        }
+
+        \vspace{2.5em}
+
+        {\color{titleblue}\Huge\bfseries Automatic Detection of Water Losses in  \\[0.2em]
+        Urban Distribution and Irrigation Networks\\[0.2em]
+        Using Deep Learning\\[0.2em]
+        \par}
+
+        \vspace{1.5em}
+
+        {\large\bfseries Supervised by: Pr. Mostafa EZZIYANI\\[0.8em]
+        Made By: ZARQI Ezzoubair, El Gharib Mahmoud\par}
+    \end{flushleft}
+
+    \vspace{1.5em}
+
+    % Abstract
+    \begin{leftbar}
+        \textbf{\textcolor{headingblue}{ABSTRACT}} Water losses due to leaks in urban
+        distribution and irrigation networks represent a critical global challenge, leading
+        to significant economic losses and resource waste. Traditional leak detection methods
+        based on manual inspection and threshold-based rules are often insufficient, as leaks
+        produce subtle, sustained deviations in sensor readings rather than easily detectable
+        sharp anomalies. In this study, we propose a deep learning approach for automatic
+        water leak detection using multivariate time-series data collected from pressure, flow
+        rate, and temperature sensors. We transform the raw sensor data into overlapping
+        sliding windows and train a one-dimensional Convolutional Neural Network (1D-CNN)
+        with batch normalization and global average pooling. To ensure an unbiased evaluation,
+        we employ \textbf{sensor-wise GroupKFold cross-validation} that guarantees zero data
+        leakage between training and validation sets. To address class imbalance, we apply
+        balanced class weighting. Evaluated across 5 folds with strict sensor-wise separation,
+        our model achieves 71.30\% accuracy, 74.07\% precision, 85.71\% recall, and a 0.79
+        F1-score, providing a realistic baseline for leak detection on a small-scale dataset
+        of 1{,}000 observations.
+    \end{leftbar}
+
+    \vspace{1em}
+
+    % Keywords
+    \begin{leftbar}
+        \textbf{\textcolor{headingblue}{KEY-WORDS}} Water Leak Detection, Deep Learning,
+        1D Convolutional Neural Network, Time-Series Classification, Sliding Window,
+        Sensor Data, Urban Water Distribution, Class Imbalance;
+    \end{leftbar}
+
+    \vspace{2.5em}
+}]
