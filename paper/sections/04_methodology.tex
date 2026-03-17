@@ -1,0 +1,54 @@
+% =============================================================================
+% Section IV — Methodology
+% =============================================================================
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Problem Formulation}
+Leak detection is formulated as binary classification on multivariate temporal
+windows. For each sample window $X \in \mathbb{R}^{W \times d}$, the model predicts
+the leak probability $\hat{y} \in [0,1]$, where $W=20$ and $d=6$.
+
+\subsection{Model Architecture}
+The implemented network follows a compact sequence stack:
+\begin{enumerate}[leftmargin=*, label=\arabic*.]
+	\item Two 1D convolution blocks (local temporal feature extraction).
+	\item One bidirectional LSTM layer (context aggregation in both directions).
+	\item A temporal attention mechanism (importance-weighted sequence reduction).
+	\item Dense classification head with sigmoid output.
+\end{enumerate}
+
+The architecture is intentionally moderate in size to reduce overfitting on a
+small dataset while preserving temporal modeling capacity.
+
+\subsection{Training Protocol}
+Training is performed using binary cross-entropy loss and Adam optimizer.
+The procedure includes:
+\begin{itemize}[leftmargin=*]
+	\item Fit/calibration split from training data only.
+	\item Feature standardization fitted on training subset.
+	\item Early stopping and learning-rate reduction monitored on calibration AUC-PR.
+	\item Best-model checkpointing.
+\end{itemize}
+
+Figure~\ref{fig:training_curves} summarizes learning behavior through loss,
+AUC-ROC, and AUC-PR curves.
+
+\begin{figure*}[t]
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/fig6_training_curves.png}
+	\caption{Training and calibration curves for binary cross-entropy loss,
+	AUC-ROC, and AUC-PR.}
+	\label{fig:training_curves}
+\end{figure*}
+
+\subsection{Threshold Selection and Evaluation}
+The model outputs probabilities, so final class decisions depend on threshold
+selection. A calibration-derived threshold is used as the deployed operating
+point. Evaluation on test data reports:
+\begin{itemize}[leftmargin=*]
+	\item Ranking metrics: AUC-ROC and AUC-PR.
+	\item Operating-point metrics: precision, recall, F1-score (leak class), accuracy.
+	\item Confusion matrix and threshold-sensitivity diagnostics.
+\end{itemize}
+

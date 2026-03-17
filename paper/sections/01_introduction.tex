@@ -3,87 +3,38 @@
 % =============================================================================
 \section{Introduction}
 
-\lettrine[lines=2]{\color{titleblue}W}{ater} distribution networks form a
-critical pillar of urban infrastructure worldwide. Despite decades of
-engineering advances, physical losses caused by undetected pipe leaks
-remain a persistent and costly challenge. The World Bank estimates that
-non-revenue water loss in developing countries regularly exceeds 30\% of
-total treated supply \cite{worldbank2006}, imposing severe economic burdens
-on municipalities and contributing to water scarcity in regions already
-under hydric stress.
+\lettrine[lines=2]{\color{titleblue}L}{eak} detection in water distribution
+networks is a critical task for reducing water losses, operating costs, and
+service disruptions. In real monitoring systems, leaks are rare events that
+must be detected from noisy multivariate time-series signals (pressure, flow,
+temperature) collected across multiple sensors. This setting creates two
+practical difficulties: strong class imbalance and ambiguous temporal patterns
+that are not well captured by static threshold rules.
 
-Conventional leak detection relies on periodic manual inspection, acoustic
-correlators, or simple pressure threshold alarms. These approaches share a
-fundamental limitation: they are \textit{reactive}, triggering only after a
-leak has already caused measurable infrastructure damage or significant water
-loss. Furthermore, threshold-based rules fail to distinguish genuine leak
-events from normal pressure fluctuations caused by demand variation, pump
-cycling, or sensor drift, leading to high false-positive rates in practice.
+This project develops and evaluates a deep learning pipeline for automated leak
+detection from sensor windows. The model combines three components: (1) 1D
+convolution layers for local temporal patterns, (2) a bidirectional LSTM for
+sequence context, and (3) temporal attention for weighted aggregation across
+timesteps. The pipeline is paired with feature engineering and calibration-based
+decision thresholding to support deployment-oriented trade-off analysis.
 
-The widespread deployment of low-cost IoT pressure and flow sensors in modern
-smart water networks now makes it possible to collect dense, continuous
-time-series data from distribution systems. This creates an opportunity for
-\textit{predictive} anomaly detection: learning the subtle temporal signatures
-that precede or accompany a leak event before the situation becomes critical.
-Machine learning methods have begun to exploit this data, yet most prior work
-relies on hand-crafted statistical features or shallow classifiers that treat
-each sensor reading independently, ignoring the temporal context that is
-central to leak behavior \cite{mounce2011novelty}.
-
-Deep learning architectures, particularly 1D Convolutional Neural Networks
-(CNN) and Long Short-Term Memory (LSTM) networks, have demonstrated
-state-of-the-art performance on multivariate time-series classification
-tasks across multiple industrial domains \cite{fawaz2019deep}. CNNs excel
-at extracting local patterns such as sharp pressure drops, while recurrent
-architectures model sequential dependencies that unfold over multiple
-timesteps. Hybrid CNN-LSTM models combine both strengths and have
-outperformed either architecture in isolation on sensor-based anomaly
-detection benchmarks \cite{karim2018lstm}.
-
-Nevertheless, applying deep learning to water leak detection faces two
-practical challenges that prior work has not fully addressed. First,
-\textbf{extreme class imbalance}: leak events are inherently rare, typically
-representing less than 2\% of sensor readings in a healthy network.
-Standard training objectives collapse to predicting the majority class,
-achieving high nominal accuracy while missing every actual leak. Second,
-\textbf{limited interpretability}: black-box predictions are insufficient
-in operational contexts where infrastructure engineers require an
-explanation of \textit{when} and \textit{why} the model raised an alarm
-before committing to an expensive field inspection.
-
-This paper addresses both challenges through the following contributions:
+The main contributions are:
 
 \begin{enumerate}[leftmargin=*, label=\arabic*.]
-    \item We propose a \textbf{CNN-BiLSTM with Self-Attention} architecture
-          that captures local pressure-drop patterns via convolutional layers,
-          long-range temporal dependencies via a Bidirectional LSTM, and
-          produces timestep-level importance scores via a lightweight attention
-          module.
-
-    \item We introduce \textbf{three engineered features} --- pressure delta
-          $\Delta P_t$, per-sensor flow Z-score $Z_{F,t}$, and pressure-flow
-          ratio $R_t$ --- that substantially improve class separability beyond
-          raw sensor readings and are physically motivated by hydraulic leak
-          dynamics.
-
-    \item We apply \textbf{Focal Loss} \cite{lin2017focal} with a tuned
-          focusing parameter $\gamma = 2.0$ and minority-class weight
-          $\alpha = 0.75$ to resolve the 98.1\%/1.9\% imbalance without
-          requiring oversampling or synthetic data generation.
-
-    \item We provide \textbf{attention weight visualizations} over leak-positive
-          windows, demonstrating that the model consistently attends to the
-          timesteps immediately preceding the pressure drop, aligning with
-          the physical dynamics of leak onset and offering operational
-          interpretability to field engineers.
+    \item A complete reproducible workflow from raw CSV data to model training,
+          evaluation, and publication-ready figures.
+    \item A compact CNN-BiLSTM-attention architecture trained with binary
+          cross-entropy for leak classification.
+    \item A calibrated operating threshold analysis that highlights precision,
+          recall, and false-alarm trade-offs for operational usage.
+    \item A LaTeX paper structure aligned with generated experimental figures
+          for direct reporting.
 \end{enumerate}
 
 The remainder of this paper is organized as follows. Section~\ref{sec:related}
-reviews related work on leak detection and time-series deep learning.
-Section~\ref{sec:dataset} describes the dataset, preprocessing pipeline,
-and feature engineering strategy. Section~\ref{sec:methodology} presents
-the proposed architecture and training protocol in detail.
-Section~\ref{sec:results} reports experimental results including ablation
-study and baseline comparisons. Sections~\ref{sec:discussion}
-and~\ref{sec:conclusion} discuss findings, limitations, and future
-directions.
+summarizes the relevant leak-detection and time-series modeling context.
+Section~\ref{sec:dataset} details the dataset, exploratory analysis, and
+preprocessing. Section~\ref{sec:methodology} presents the implemented training
+pipeline and model architecture. Section~\ref{sec:results} reports quantitative
+results with figure-based analysis. Sections~\ref{sec:discussion} and
+\ref{sec:conclusion} discuss implications, limitations, and next steps.

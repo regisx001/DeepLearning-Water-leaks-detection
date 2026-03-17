@@ -1,0 +1,40 @@
+% =============================================================================
+% Section VI — Discussion
+% =============================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+The current model demonstrates a meaningful ranking signal (AUC-ROC 0.6364,
+AUC-PR 0.5008) but an imbalanced operating point. With $\tau=0.0913$, recall is
+perfect on the test split while precision and accuracy are low. In practical
+terms, the detector is conservative with respect to missed leaks and aggressive
+in generating alarms.
+
+\subsection{What Worked}
+\begin{itemize}[leftmargin=*]
+	\item Multivariate sequence modeling (CNN + BiLSTM + attention) captures leak-related
+		  temporal structure beyond static thresholding.
+	\item Feature engineering supports class ranking quality, as reflected in PR/ROC curves.
+	\item The evaluation pipeline provides transparent threshold diagnostics for deployment.
+\end{itemize}
+
+\subsection{Main Limitation}
+The deployed threshold is too low for balanced operation on this test set.
+As shown by threshold sensitivity plots, moderate threshold increases can
+substantially reduce false alarms, but this may decrease recall.
+
+\subsection{Deployment Implication}
+Threshold should be selected from an explicit operational objective, for example:
+\begin{itemize}[leftmargin=*]
+	\item Recall-constrained optimization (maximize precision with recall $\geq r_{min}$), or
+	\item Cost-based optimization using field-inspection and missed-leak penalties.
+\end{itemize}
+
+\subsection{Future Work}
+\begin{itemize}[leftmargin=*]
+	\item Re-train and export model without Lambda deserialization fragility by replacing
+		  Lambda reduction with a native pooling layer.
+	\item Run cross-validation across temporal folds to improve robustness of reported metrics.
+	\item Extend evaluation with calibration curves and uncertainty-aware alert policies.
+\end{itemize}
+

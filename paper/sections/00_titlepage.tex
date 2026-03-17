@@ -27,26 +27,23 @@
 
     % Abstract
     \begin{leftbar}
-        \textbf{\textcolor{headingblue}{ABSTRACT}} Water losses due to leaks in urban
-        distribution networks represent a critical global challenge, causing significant
-        economic losses and resource waste. Traditional leak detection methods based on
-        manual inspection and threshold-based rules are often insufficient, as leaks
-        produce subtle, temporally distributed deviations in sensor readings rather than
-        sharp, easily detectable anomalies. In this study, we propose a deep learning
-        pipeline for automatic water leak detection using multivariate time-series data
-        collected from pressure and flow rate sensors deployed across ten monitoring
-        nodes. We transform the raw sensor data into per-sensor sliding windows and train
-        a hybrid \textbf{CNN-BiLSTM architecture augmented with a Self-Attention mechanism}.
-        The convolutional block extracts local temporal patterns, the Bidirectional LSTM
-        captures long-range sequential dependencies, and the attention layer assigns
-        interpretable importance weights to individual timesteps. To address the severe
-        class imbalance (1.9\% leak rate), we apply \textbf{Focal Loss} with a focusing
-        parameter $\gamma = 2.0$ combined with decision threshold tuning on the validation
-        set. In addition, three engineered features --- pressure delta, per-sensor flow
-        Z-score, and pressure-flow ratio --- are introduced to enhance class separability
-        beyond raw sensor readings. The model is evaluated on a held-out test set using
-        F1-score, AUC-ROC, and precision-recall analysis, providing a rigorous and
-        reproducible baseline for deep learning-based leak detection.
+        \textbf{\textcolor{headingblue}{ABSTRACT}} This paper presents an end-to-end
+        deep learning pipeline for automatic leak detection in urban water distribution
+        networks using multivariate sensor time series. The workflow includes
+        feature engineering, per-sensor sliding-window construction, temporal train/test
+        separation, and supervised sequence modeling with a compact CNN-BiLSTM-attention
+        architecture. The final model is trained with binary cross-entropy and evaluated
+        using a calibration-derived operating threshold.
+
+        The test set contains 39 windows (11 leak, 28 normal). At the selected threshold
+        $\tau = 0.0913$, the system achieves AUC-ROC $= 0.6364$ and AUC-PR $= 0.5008$.
+        The operating point is recall-oriented, reaching leak recall $= 1.0000$ with
+        leak precision $= 0.2821$, leak F1-score $= 0.4400$, and overall accuracy
+        $= 0.2821$. Although this threshold triggers many false positives, it guarantees
+        no missed leaks on the evaluated test split, which is often preferable in
+        safety-critical monitoring. The generated visual analysis (distribution plots,
+        training curves, confusion matrices, PR/ROC, score distribution, and threshold
+        sensitivity) is used to characterize trade-offs and guide deployment decisions.
     \end{leftbar}
 
     \vspace{1em}
@@ -54,8 +51,8 @@
     % Keywords
     \begin{leftbar}
         \textbf{\textcolor{headingblue}{KEY-WORDS}} Water Leak Detection, Deep Learning,
-        CNN-BiLSTM, Self-Attention, Time-Series Classification, Sliding Window,
-        Feature Engineering, Focal Loss, Class Imbalance, IoT Sensor Networks;
+        CNN-BiLSTM, Temporal Attention, Time-Series Classification, Sliding Window,
+        Binary Cross-Entropy, Threshold Tuning, IoT Water Monitoring;
     \end{leftbar}
 
     \vspace{2.5em}

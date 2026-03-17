@@ -1,0 +1,70 @@
+% =============================================================================
+% Section V — Results
+% =============================================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Quantitative Performance on Test Set}
+Using the saved model and threshold, the final test metrics are:
+\begin{itemize}[leftmargin=*]
+	\item AUC-ROC: 0.6364
+	\item AUC-PR: 0.5008
+	\item Threshold: $\tau = 0.0913$
+	\item Leak precision: 0.2821
+	\item Leak recall: 1.0000
+	\item Leak F1-score: 0.4400
+	\item Accuracy: 0.2821
+\end{itemize}
+
+The resulting confusion matrix is:
+\[
+\begin{bmatrix}
+0 & 28 \\
+0 & 11
+\end{bmatrix}
+\]
+which means all test windows are classified as leak at this operating point.
+
+\subsection{Confusion Matrix Analysis}
+Figure~\ref{fig:cm_eval} highlights a recall-first behavior. The model captures
+all leak windows but with a very high false-positive count on normal windows.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{images/fig_confusion_matrix.png}
+	\caption{Confusion matrix (raw and normalized) on the test set.}
+	\label{fig:cm_eval}
+\end{figure}
+
+\subsection{Ranking Performance (PR/ROC)}
+Figure~\ref{fig:prroc_eval} shows that ranking quality remains above random
+baseline (AUC-ROC 0.6364, AP 0.5008), indicating useful separability in
+probability space even if the selected threshold is too permissive.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{images/fig_pr_roc_curves.png}
+	\caption{Precision-recall and ROC curves for the final model.}
+	\label{fig:prroc_eval}
+\end{figure}
+
+\subsection{Threshold Behavior and Score Overlap}
+Figure~\ref{fig:score_dist_eval} and Figure~\ref{fig:th_sens_eval} explain the
+operating-point outcome. Most predicted scores are well above $\tau=0.0913$,
+so recall is maximized while precision collapses. This confirms that in this
+experiment, threshold policy dominates practical behavior.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{images/fig_score_distribution.png}
+	\caption{Predicted score distribution for normal and leak windows.}
+	\label{fig:score_dist_eval}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{images/fig_threshold_sensitivity.png}
+	\caption{Leak precision, recall, and F1-score versus decision threshold.}
+	\label{fig:th_sens_eval}
+\end{figure}
+
