@@ -1,0 +1,177 @@
+% =============================================================================
+% Section III — Dataset and Preprocessing
+% =============================================================================
+\section{Dataset and Preprocessing}
+\label{sec:dataset}
+
+\subsection{Dataset Description}
+The dataset used in this study consists of 1{,}000 sensor readings
+collected from a simulated water distribution network comprising
+ten monitoring nodes (S001--S010). Measurements are recorded at
+uniform 5-minute intervals spanning a 3.5-day observation period
+from January 1 to January 4, 2024. Each record contains the
+following fields:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Timestamp:} UTC datetime of the measurement.
+    \item \textbf{Sensor\_ID:} identifier of the monitoring node
+          (S001--S010), with approximately 99 readings per sensor.
+    \item \textbf{Pressure (bar):} hydraulic pressure measured at
+          the sensor node, ranging from 2.50 to 4.00 bar under
+          normal conditions.
+    \item \textbf{Flow Rate (L/s):} volumetric flow rate through
+          the pipe segment, ranging from 50 to 210 L/s under
+          normal conditions.
+    \item \textbf{Temperature (°C):} water temperature at the
+          measurement point (discarded, see Section~\ref{sec:tempremoval}).
+    \item \textbf{Leak Status:} binary ground-truth label
+          (0 = Normal, 1 = Leak).
+    \item \textbf{Burst Status:} indicator for burst events,
+          excluded from this study as it constitutes a distinct
+          failure mode outside the scope of leak detection.
+\end{itemize}
+
+After removing the 10 burst-labeled records, the working dataset
+contains \textbf{990 observations} with \textbf{19 confirmed leak
+events}, yielding a class ratio of 98.1\% Normal to 1.9\% Leak.
+This extreme imbalance is representative of real-world conditions
+in healthy water networks and constitutes the primary modeling
+challenge addressed in this work.
+
+\subsection{Exploratory Analysis}
+
+\subsubsection{Class Distribution and Label Quality}
+No missing values were found in any column. Labels are mutually
+exclusive: no record carries both Leak Status = 1 and Burst
+Status = 1 simultaneously, confirming clean annotation. Leak
+events are distributed across multiple sensors, with no single
+sensor accounting for the majority of events, indicating that
+leaks simulate realistic network-wide occurrences rather than
+sensor-specific artifacts.
+
+\subsubsection{Pressure}
+Figure~\ref{fig:pressure_dist} shows the pressure distributions
+for Normal and Leak classes. Leak events exhibit a mean pressure
+of 2.19 bar compared to 3.26 bar for normal operating conditions,
+a reduction of approximately 33\%. The standard deviation for
+leak events (0.45 bar) is comparable to that of normal readings
+(0.43 bar), indicating that the separation is driven by a shift
+in mean rather than a change in variance. Notably, the lower tail
+of the normal pressure distribution partially overlaps with the
+leak range, confirming that pressure alone is insufficient for
+reliable binary classification.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{images/fig1_pressure_distribution.png}
+    \caption{Pressure distribution for Normal vs.\ Leak conditions.
+             Leak events cluster at significantly lower pressure values,
+             with partial overlap in the 2.5--3.0 bar range.}
+    \label{fig:pressure_dist}
+\end{figure}
+
+\subsubsection{Flow Rate}
+Figure~\ref{fig:flow_dist} illustrates the flow rate distributions
+by class. Leak events show a moderate increase in mean flow rate
+(148.7 L/s) relative to normal conditions (124.2 L/s), consistent
+with the hydraulic principle that a pressure drop at a leak point
+drives increased upstream flow to compensate. However, the
+distributions overlap substantially, reinforcing that no single
+feature provides clean class separation and motivating the
+multi-feature, temporal modeling approach.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{images/fig2_flowrate_distribution.png}
+    \caption{Flow rate distribution for Normal vs.\ Leak conditions.
+             Leak events show a moderate increase in flow rate, with
+             substantial overlap with the normal range.}
+    \label{fig:flow_dist}
+\end{figure}
+
+\subsubsection{Temporal Behavior}
+Figure~\ref{fig:timeseries} shows the time-series of pressure and
+flow rate for a representative sensor with confirmed leak events.
+Red markers indicate timesteps labeled as leaks. Two observations
+are critical: (1) the pressure signal exhibits a visible drop at
+leak timesteps, and (2) the drop is preceded by a period of
+relatively stable readings, suggesting that temporal context over
+multiple consecutive readings is necessary to distinguish a
+genuine leak from normal pressure variability. This motivates the
+sliding window approach described in Section~\ref{sec:windowing}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{images/fig3_timeseries_leak_sensor.png}
+    \caption{Pressure and flow rate time-series for a representative
+             sensor. Red markers indicate confirmed leak events.
+             The pressure drop and simultaneous flow increase are
+             visible at each leak timestep.}
+    \label{fig:timeseries}
+\end{figure}
+
+\subsubsection{Feature Correlation}
+\label{sec:tempremoval}
+Figure~\ref{fig:correlation} presents the Pearson correlation matrix
+between all numeric features and the Leak Status label. Pressure
+exhibits the strongest negative correlation with the leak label
+($r = -0.31$), followed by Flow Rate ($r = +0.11$). Temperature
+shows a near-zero correlation ($r < 0.02$) with no meaningful
+discriminative signal. Temperature is therefore excluded from all
+downstream modeling steps to reduce input dimensionality and
+prevent noise injection into the feature representation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{images/fig4_correlation_matrix.png}
+    \caption{Pearson correlation matrix. Pressure holds the strongest
+             correlation with the leak label. Temperature shows
+             negligible correlation and is excluded from the model.}
+    \label{fig:correlation}
+\end{figure}
+
+\subsection{Feature Engineering}
+Three features are engineered per sensor prior to windowing,
+motivated by the hydraulic dynamics of leak events:
+
+\begin{equation}
+    \Delta P_t = P_t - P_{t-1}
+    \label{eq:delta_p}
+\end{equation}
+
+\begin{equation}
+    Z_{F,t} = \frac{F_t - \mu_s}{\sigma_s + \varepsilon}
+    \label{eq:flow_z}
+\end{equation}
+
+\begin{equation}
+    R_t = \frac{P_t}{F_t + \varepsilon}
+    \label{eq:pf_ratio}
+\end{equation}
+
+where $\Delta P_t$ is the \textbf{pressure delta}, capturing the
+rate of pressure change between consecutive readings of the same
+sensor. $Z_{F,t}$ is the \textbf{per-sensor flow Z-score}, computed
+using the mean $\mu_s$ and standard deviation $\sigma_s$ of each
+individual sensor's flow history to normalize sensor-specific
+baselines. $R_t$ is the \textbf{pressure-flow ratio}, which drops
+sharply during leak events as pressure decreases and flow increases
+simultaneously. The small constant $\varepsilon = 10^{-8}$ prevents
+division by zero. These features increase the per-timestep feature
+dimensionality from $d = 2$ (raw) to $d = 6$ (with engineered
+features and sensor encoding).
+
+\subsection{Sliding Window Construction}
+\label{sec:windowing}
+The dataset is restructured into fixed-length windows suitable for
+deep learning input. Windows are constructed \textbf{per sensor}
+after sorting records by \texttt{Sensor\_ID} and \texttt{Timestamp},
+preventing cross-sensor temporal contamination. A window size of
+$W = 20$ timesteps (100 minutes of sensor history) and a step
+size of $S = 5$ (75\% overlap between consecutive windows) are
+used. Each window is labeled by the \textbf{Leak Status of its
+final timestep}, avoiding the inflated positive counts produced
+by the ``any-leak-in-window'' labeling convention used in prior
+work. The resulting dataset is partitioned into training (70\%),
+validation (15\%), and test (15\%) sets using stratified sampling
+to preserve the 1.9\% leak ratio across all three splits.
