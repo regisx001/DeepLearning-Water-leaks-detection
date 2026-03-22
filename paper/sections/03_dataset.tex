@@ -5,78 +5,103 @@
 \label{sec:dataset}
 
 \subsection{Raw Data Overview}
-The project uses a multivariate water-network dataset with 1,000 time-stamped
-records collected from multiple sensors. Each record includes pressure,
-flow rate, temperature, sensor ID, and binary leak status. Burst-related
-samples are excluded to keep the task focused on leak detection.
+The project uses a multivariate water-network dataset with 6{,}000
+time-stamped records collected from ten spatially distributed sensors
+(S001--S010) covering a three-week period from 2024-01-01 to 2024-01-21
+at an approximate 5-minute sampling interval. Each record includes:
+sensor ID, UTC timestamp, pressure~(bar), flow rate~(L/s),
+temperature~(\textdegree C), binary leak status, and binary burst status.
 
-Exploratory analysis confirms that leak events are rare at row level, and that
-class imbalance remains present after windowing. This motivates careful split
-strategy, calibration, and threshold analysis in later sections.
+Burst events are excluded from the modelling corpus because they represent
+a qualitatively different and more severe hydraulic anomaly. After burst
+removal, 5{,}590 records remain with 774 labelled leak timesteps
+(13.8\,\%), confirming moderate class imbalance at the raw record level
+that becomes more pronounced at the window level after temporal splitting.
 
-\subsection{Feature Exploration with Generated Figures}
-Figure~\ref{fig:pressure_dist} and Figure~\ref{fig:flow_dist} show clear but
-not perfectly separable class tendencies. Leak cases generally appear with lower
-pressure and altered flow behavior compared with normal operation.
+\subsection{Feature Exploration}
+Figure~\ref{fig:pressure_dist} and Figure~\ref{fig:flow_dist} show
+stratified distributions for pressure and flow rate. Leak records present
+systematically lower pressure (shifted distribution towards 1.5--2.5\,bar)
+while normal records concentrate around 3.0--3.5\,bar. Flow rate shows a
+complementary rightward shift for leak windows, consistent with the
+hydraulic inverse relationship between pressure loss and discharge increase.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=\columnwidth]{images/fig1_pressure_distribution.png}
-    \caption{Pressure distribution for normal and leak classes.}
-    \label{fig:pressure_dist}
+\centering
+\includegraphics[width=\columnwidth]{images/fig1_pressure_distribution.jpg}
+\caption{Pressure distribution for normal and leak classes. Leak records
+exhibit a clear leftward shift towards lower pressures.}
+\label{fig:pressure_dist}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=\columnwidth]{images/fig2_flowrate_distribution.png}
-    \caption{Flow-rate distribution for normal and leak classes.}
-    \label{fig:flow_dist}
+\centering
+\includegraphics[width=\columnwidth]{images/fig2_flowrate_distribution.jpg}
+\caption{Flow-rate distribution for normal and leak classes. Leak records
+show elevated flow relative to normal operating conditions.}
+\label{fig:flow_dist}
 \end{figure}
 
-Temporal context is important. Figure~\ref{fig:timeseries} illustrates that leak
-signals are expressed as sequence patterns, not isolated points.
+Temporal context is essential. Figure~\ref{fig:timeseries} illustrates that
+leak signals manifest as sequential patterns spanning multiple consecutive
+readings, not as isolated outlier points.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=\columnwidth]{images/fig3_timeseries_leak_sensor.png}
-    \caption{Representative sensor timeline with leak events marked.}
-    \label{fig:timeseries}
+\centering
+\includegraphics[width=\columnwidth]{images/fig3_timeseries_leak_sensor.jpg}
+\caption{Sensor S003 time series with confirmed leak events marked in red.
+Pressure dips and flow spikes co-occur, reinforcing the need for
+multivariate sequence modelling.}
+\label{fig:timeseries}
 \end{figure}
 
-Correlation analysis (Figure~\ref{fig:correlation}) indicates pressure is the
-most informative single variable, while leak detection still requires combining
-multiple channels over time.
+Correlation analysis (Figure~\ref{fig:correlation}) confirms that pressure
+is the most informative raw feature, with a Pearson correlation of
+$r = -0.606$ with the leak label. Flow rate shows a moderate positive
+correlation ($r = 0.197$), while temperature is essentially uncorrelated
+($r = 0.023$) and retained only as auxiliary context.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=\columnwidth]{images/fig4_correlation_matrix.png}
-    \caption{Feature correlation matrix including leak label relation.}
-    \label{fig:correlation}
+\centering
+\includegraphics[width=\columnwidth]{images/fig4_correlation_matrix.jpg}
+\caption{Pearson correlation matrix. Pressure exhibits the strongest
+association with leak status ($r = -0.606$).}
+\label{fig:correlation}
 \end{figure}
 
 \subsection{Feature Engineering and Windowing}
-The modeling pipeline uses six features per timestep:
+Three domain-informed features are computed per record to supplement raw
+sensor readings:
 \begin{itemize}[leftmargin=*]
-    \item Pressure (bar)
-    \item Flow Rate (L/s)
-    \item Temperature (\textdegree C)
-    \item Pressure delta
-    \item Flow z-score (sensor-wise)
-    \item Pressure/flow ratio
+\item \textbf{Pressure delta} ($\Delta P_t = P_t - P_{t-1}$, per sensor):
+captures rapid pressure drops at leak onset.
+\item \textbf{Flow z-score} (sensor-normalised): removes sensor-specific
+baseline offsets to highlight relative flow excursions.
+\item \textbf{Pressure-to-flow ratio} ($r_t = P_t / (Q_t + \varepsilon)$):
+collapses the inverse hydraulic relationship into a single discriminative scalar.
 \end{itemize}
 
-Sliding windows are built per sensor using:
+The final feature vector per timestep is therefore $\mathbf{x}_t \in
+\mathbb{R}^{6}$, comprising pressure, flow rate, temperature, pressure delta,
+flow z-score, and pressure-to-flow ratio.
+
+Sliding windows are constructed independently per sensor with:
 \begin{itemize}[leftmargin=*]
-    \item Window size: $W = 20$ timesteps
-    \item Step size: $S = 5$
+\item Window size: $W = 20$ timesteps (approximately 100\,minutes).
+\item Step size: $S = 5$ timesteps (25\,minutes).
+\item Label: positive if \emph{any} timestep in the window is a leak.
 \end{itemize}
 
-The resulting arrays used in this report are:
+The temporal 80/20 split per sensor yields the following window counts:
 \begin{itemize}[leftmargin=*]
-    \item Training windows: $125$ (leak windows: $41$, rate: $32.8\%$)
-    \item Test windows: $39$ (leak windows: $11$, rate: $28.2\%$)
+\item \textbf{Training total}: 863 windows --- leak: 329 (38.1\,\%).
+\item \textbf{Test set}: 221 windows --- leak: 91 (41.2\,\%).
 \end{itemize}
 
-A calibration subset is drawn from training data only for early stopping and
-operating-threshold selection, while the test set remains untouched for final
-reporting.
+From the 863 training windows, a stratified internal split produces a
+\emph{fit set} (656 windows, 34.9\,\% leak, after ratio capping) and a
+\emph{calibration set} (173 windows, 38.2\,\% leak) used exclusively
+for early stopping and threshold selection. Feature standardisation
+statistics are computed on the fit set only and applied identically to
+calibration and test data.
+

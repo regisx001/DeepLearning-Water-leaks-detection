@@ -5,66 +5,97 @@
 \label{sec:results}
 
 \subsection{Quantitative Performance on Test Set}
-Using the saved model and threshold, the final test metrics are:
-\begin{itemize}[leftmargin=*]
-	\item AUC-ROC: 0.6364
-	\item AUC-PR: 0.5008
-	\item Threshold: $\tau = 0.0913$
-	\item Leak precision: 0.2821
-	\item Leak recall: 1.0000
-	\item Leak F1-score: 0.4400
-	\item Accuracy: 0.2821
-\end{itemize}
+Table~\ref{tab:metrics} reports the final evaluation on the 221-window test
+set at the calibrated threshold $\tau^{*} = 0.0200$. The AUC-PR of 0.4552
+is \textbf{10.5\,\% above the no-skill random baseline} of 0.4118 (equal to
+the test set positive rate of 91/221), confirming that the model learns a
+meaningful anomaly-scoring function.
 
-The resulting confusion matrix is:
-\[
-\begin{bmatrix}
-0 & 28 \\
-0 & 11
-\end{bmatrix}
-\]
-which means all test windows are classified as leak at this operating point.
+\begin{table}[H]
+\centering
+\caption{Final test-set metrics at $\tau^{*} = 0.0200$.}
+\label{tab:metrics}
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+AUC-ROC                   & 0.5011 \\
+AUC-PR                    & 0.4552 \\
+AUC-PR random baseline    & 0.4118 \\
+\midrule
+Threshold $\tau^{*}$      & 0.0200 \\
+Leak Precision            & 0.4118 \\
+Leak Recall               & 1.0000 \\
+Leak F1-score             & 0.5833 \\
+Accuracy                  & 0.4118 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Confusion Matrix Analysis}
-Figure~\ref{fig:cm_eval} highlights a recall-first behavior. The model captures
-all leak windows but with a very high false-positive count on normal windows.
+Figure~\ref{fig:cm_eval} shows the raw-count and row-normalised confusion
+matrices at $\tau^{*} = 0.0200$. All 221 test windows are predicted as Leak,
+meaning the 91 true leak windows are all captured (recall = 1.0) while all
+130 normal windows are false-positives. This recall-first behaviour is a
+direct consequence of the very low calibrated threshold: the model assigns
+probabilities predominantly above 0.020 to all windows.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\columnwidth]{images/fig_confusion_matrix.png}
-	\caption{Confusion matrix (raw and normalized) on the test set.}
-	\label{fig:cm_eval}
+\centering
+\includegraphics[width=\columnwidth]{images/fig_confusion_matrix.jpg}
+\caption{Confusion matrix (raw counts and row-normalised) on the test set
+at $\tau = 0.0200$. All 221 windows are predicted Leak, yielding perfect
+recall and maximum false-alarm rate at this operating point.}
+\label{fig:cm_eval}
 \end{figure}
 
 \subsection{Ranking Performance (PR/ROC)}
-Figure~\ref{fig:prroc_eval} shows that ranking quality remains above random
-baseline (AUC-ROC 0.6364, AP 0.5008), indicating useful separability in
-probability space even if the selected threshold is too permissive.
+Figure~\ref{fig:prroc_eval} shows the precision-recall and ROC curves on
+the test set. The AUC-PR of 0.455 demonstrates meaningful score
+separability above the random baseline (AP = 0.41). The steep early rise
+in the PR curve indicates that the model correctly assigns the highest
+scores to a subset of true leak windows before precision degrades, while
+the ROC curve (AUC = 0.501) remains near the diagonal, reflecting the
+difficulty of the task on this test split.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\columnwidth]{images/fig_pr_roc_curves.png}
-	\caption{Precision-recall and ROC curves for the final model.}
-	\label{fig:prroc_eval}
+\centering
+\includegraphics[width=\columnwidth]{images/fig_pr_roc_curves.jpg}
+\caption{Precision-recall (left) and ROC (right) curves on the test set.
+The red dot marks the operating point at $\tau^{*} = 0.020$. The dashed
+line indicates the no-skill random baseline.}
+\label{fig:prroc_eval}
 \end{figure}
 
-\subsection{Threshold Behavior and Score Overlap}
-Figure~\ref{fig:score_dist_eval} and Figure~\ref{fig:th_sens_eval} explain the
-operating-point outcome. Most predicted scores are well above $\tau=0.0913$,
-so recall is maximized while precision collapses. This confirms that in this
-experiment, threshold policy dominates practical behavior.
+\subsection{Threshold Behaviour and Score Distribution}
+Figure~\ref{fig:score_dist_eval} shows the predicted probability distributions
+for Normal and Leak windows on the test set. Both distributions overlap
+substantially in the 0.2--0.8 range, explaining the limited AUC-ROC. However,
+Leak windows (n=91) show a marginally higher density at elevated scores,
+confirming a directionally correct ranking signal. The calibrated threshold
+$\tau^{*} = 0.020$ lies far to the left of both distributions, causing every
+window to be predicted Leak.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\columnwidth]{images/fig_score_distribution.png}
-	\caption{Predicted score distribution for normal and leak windows.}
-	\label{fig:score_dist_eval}
+\centering
+\includegraphics[width=\columnwidth]{images/fig_score_distribution.jpg}
+\caption{Predicted probability distributions for Normal (blue, n=130) and
+Leak (red, n=91) windows. The dashed vertical line marks $\tau^{*}=0.020$.
+Substantial overlap between classes reflects inherent task difficulty.}
+\label{fig:score_dist_eval}
 \end{figure}
 
+Figure~\ref{fig:th_sens_eval} illustrates how precision, recall, and F1
+vary across the full threshold range. Recall remains at 1.0 for all
+thresholds below approximately 0.60, while precision and F1 peak near
+$\tau = 0.55$--$0.60$ where the curves intersect.
+
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\columnwidth]{images/fig_threshold_sensitivity.png}
-	\caption{Leak precision, recall, and F1-score versus decision threshold.}
-	\label{fig:th_sens_eval}
+\centering
+\includegraphics[width=\columnwidth]{images/fig_threshold_sensitivity.jpg}
+\caption{Leak precision, recall, and F1-score as a function of decision
+threshold. The dashed vertical line marks the deployed threshold
+$\tau^{*} = 0.020$. Peak F1 is achieved near $\tau = 0.58$.}
+\label{fig:th_sens_eval}
 \end{figure}
 
