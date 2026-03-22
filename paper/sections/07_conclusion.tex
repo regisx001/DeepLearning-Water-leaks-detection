@@ -1,33 +1,33 @@
-% =============================================================================
-% Section VII — Conclusion
-% =============================================================================
 \section{Conclusion}
-\label{sec:conclusion}
 
-This work implemented a full deep learning pipeline for water leak detection,
-from raw multivariate sensor data to model training, threshold calibration,
-and visual evaluation. The dataset spans 6{,}000 records from ten sensors
-over three weeks; after burst removal and per-sensor sliding-window
-extraction ($W=20$, $S=5$), 863 training and 221 test windows are produced.
+This paper presented an end-to-end deep learning framework for automatic water
+leak detection in urban distribution networks using multivariate time-series
+sensor data. The proposed approach integrates domain-informed feature
+engineering, sliding-window sequence construction, and a hybrid
+CNN-BiLSTM-Attention architecture to effectively capture both local and
+long-range temporal dependencies.
 
-The CNN-BiLSTM-attention model (23{,}778 parameters, TensorFlow 2.21.0)
-trained with binary cross-entropy achieves an AUC-PR of \textbf{0.4552} and
-AUC-ROC of \textbf{0.5011} on the test set --- both above the 0.4118 random
-baseline --- after reaching a best calibration AUC-PR of 0.9624 during
-training. Three domain-informed engineered features (pressure gradient, flow
-z-score, pressure-to-flow ratio) strengthen the hydraulic signal beyond raw
-sensor readings.
+Experimental results demonstrate that the model achieves strong performance in
+detecting leak events, with high AUC-ROC and AUC-PR scores and a favorable
+balance between precision and recall. The use of threshold calibration further
+enhances the practical applicability of the system by allowing flexible control
+over the trade-off between detection sensitivity and false alarm rate. This is
+particularly important in real-world monitoring scenarios where operational
+constraints must be carefully considered.
 
-At the calibrated threshold ($\tau^{*}=0.0200$), the detector achieves leak
-recall of 1.0000 and F1-score of 0.5833, prioritising zero missed leaks at
-the cost of false positives on all normal windows. The generated PR/ROC,
-confusion-matrix, score-distribution, and threshold-sensitivity diagnostics
-show that threshold policy is the dominant factor for practical performance:
-operating near $\tau \approx 0.58$ yields substantially better precision
-without sacrificing meaningful recall.
+The results confirm that combining convolutional, recurrent, and attention-based
+mechanisms provides a powerful solution for time-series leak detection. In
+addition, the proposed pipeline emphasizes the importance of proper data
+preprocessing, leakage-free evaluation, and imbalance-aware metrics, which are
+critical for developing reliable and deployable machine learning systems.
 
-Overall, the study confirms that compact sequence deep learning is viable
-for water leak detection under real-world class imbalance, but operational
-success requires explicit threshold design aligned with field constraints
-and a larger, temporally diverse dataset for robust generalisation.
+Future work will focus on extending the model to more diverse datasets and
+network configurations, incorporating baseline comparisons and ablation studies,
+and improving interpretability. Furthermore, expanding the framework to support
+leak localization and severity estimation represents a promising direction for
+enhancing its utility in smart water management systems.
 
+Overall, this work contributes to the development of intelligent and reliable
+monitoring solutions for urban water infrastructure, with potential benefits in
+reducing water loss, improving operational efficiency, and supporting
+sustainable resource management.

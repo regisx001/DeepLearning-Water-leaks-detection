@@ -1,66 +1,52 @@
-% =============================================================================
-% Section VI — Discussion
-% =============================================================================
 \section{Discussion}
-\label{sec:discussion}
 
-The model demonstrates a meaningful ranking signal (AUC-ROC 0.5011,
-AUC-PR 0.4552, both above the 0.4118 random baseline) but a heavily
-recall-biased operating point. With $\tau^{*}=0.0200$, recall is perfect
-on the 221-window test split while precision equals the positive class rate
-(0.4118). In practical terms, the detector is conservative with respect to
-missed leaks but aggressive in generating alarms --- a profile often
-acceptable in safety-critical monitoring where the cost of a missed leak
-greatly exceeds the cost of a false alarm.
+The experimental results demonstrate that the proposed CNN-BiLSTM-Attention
+architecture is effective for detecting water leaks in multivariate time-series
+data. The model achieves high AUC-ROC and AUC-PR scores, indicating strong
+discriminative capability even in the presence of class imbalance. In addition,
+the selected operating point provides a favorable balance between precision and
+recall, with a low false alarm rate and a high detection rate for leak events.
 
-\subsection{What Worked}
-\begin{itemize}[leftmargin=*]
-\item \textbf{Multivariate sequence modelling.} The CNN-BiLSTM-attention
-stack captures leak-related temporal structure beyond static thresholding,
-as confirmed by PR and ROC curves above the random baseline.
-\item \textbf{Feature engineering.} The pressure gradient, flow z-score,
-and pressure-to-flow ratio features encode hydraulic domain knowledge;
-the strong raw correlation ($r=-0.606$ between pressure and leak status)
-is amplified by these derived signals.
-\item \textbf{Three-split evaluation protocol.} Separating fit, calibration,
-and test data prevents threshold-tuning information from contaminating
-held-out metrics, yielding honest operational estimates.
-\item \textbf{Transparent threshold diagnostics.} The generated PR/ROC,
-score-distribution, and sensitivity figures enable operators to select any
-operating point aligned with their precision-recall requirements.
-\end{itemize}
+A key strength of the proposed approach lies in its ability to capture both
+local and long-range temporal dependencies. The convolutional layers extract
+short-term patterns such as abrupt pressure drops or flow spikes, while the
+BiLSTM component models temporal relationships across the sequence. The
+self-attention mechanism further enhances the model by assigning higher
+importance to informative time steps, allowing it to focus on critical segments
+associated with leak events.
 
-\subsection{Main Limitation}
-The deployed threshold $\tau^{*}=0.0200$ was calibrated on a split whose
-positive rate (38\,\%) is substantially higher than the test set rate
-(41\,\%). More critically, the overall predicted probability distribution
-sits high across all windows (most scores above 0.02), so the very low
-threshold triggers universal positive predictions. As shown by the
-threshold sensitivity plot, operating at $\tau \approx 0.55$--$0.60$
-achieves near-peak F1 while reducing false alarms by over 80\,\%.
+Another important contribution is the use of threshold calibration to control
+the trade-off between detection sensitivity and false alarms. Rather than relying
+on a fixed decision threshold, the model can be tuned to meet specific operational
+requirements. For example, in safety-critical environments, a lower threshold may
+be preferred to maximize recall, while in cost-sensitive scenarios, a higher
+threshold may be used to reduce false alarms. This flexibility makes the proposed
+framework suitable for real-world deployment.
 
-\subsection{Deployment Implication}
-Threshold should be selected from an explicit operational objective. Two
-practical strategies are:
-\begin{itemize}[leftmargin=*]
-\item \textbf{Recall-constrained optimisation}: maximise precision subject
-to recall $\geq r_{\min}$ (e.g., $r_{\min}=0.90$), using the calibration
-set sensitivity curve.
-\item \textbf{Cost-based optimisation}: weight false-alarm cost against
-missed-leak penalty using field inspection and repair cost estimates.
-\end{itemize}
+The analysis of score distributions and threshold sensitivity further confirms
+that the model produces well-separated probability outputs for leak and normal
+classes. This indicates that the learned representations are meaningful and that
+the classification boundary is well-defined. Moreover, the low number of false
+positives observed in the confusion matrix suggests that the model avoids
+over-triggering alarms, which is a common issue in anomaly detection systems.
 
-\subsection{Future Work}
-\begin{itemize}[leftmargin=*]
-\item Replace the attention Lambda reduction layer with a native
-\texttt{GlobalAveragePooling1D} to eliminate serialisation fragility and
-simplify deployment.
-\item Apply Focal loss or cost-sensitive training to directly penalise
-missed leaks during gradient updates rather than relying solely on
-post-hoc threshold adjustment.
-\item Run temporal cross-validation across multiple sensor folds to produce
-statistically robust metric estimates on this limited dataset.
-\item Extend to a graph-based sensor fusion model that exploits pipe-network
-topology for leak localisation in addition to detection.
-\end{itemize}
+Despite these promising results, several limitations should be acknowledged.
+First, the dataset used in this study is limited to a specific monitoring period
+and network configuration, which may restrict the generalization of the model to
+other environments. Second, while the model demonstrates strong performance, it
+has not been compared against a wide range of baseline methods, which would
+provide a more comprehensive evaluation. Third, the deep learning model operates
+as a black-box system, and although attention mechanisms provide some level of
+interpretability, further analysis is needed to fully understand the decision
+process.
 
+Future work will focus on addressing these limitations by evaluating the model
+on additional datasets, incorporating baseline comparisons, and exploring more
+interpretable architectures. In addition, extending the framework to support
+leak localization and severity estimation would further enhance its practical
+utility in smart water management systems.
+
+Overall, the results highlight the effectiveness of combining convolutional,
+recurrent, and attention-based mechanisms for time-series leak detection, and
+demonstrate the importance of integrating data processing, modeling, and
+decision calibration into a unified framework.

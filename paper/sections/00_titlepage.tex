@@ -1,54 +1,66 @@
 % =============================================================================
-% Section I — Introduction
+% Title Block (spans both columns via \twocolumn[...])
 % =============================================================================
-\section{Introduction}
+\twocolumn[{
+\begin{flushleft}
+{\small
+Department of Software Engineering\\
+Faculty of Sciences and Techniques Tangier\\
+Abdelmalek Essadi University, Morocco\\
+22/03/2026\par
 
-\lettrine[lines=2]{\color{titleblue}L}{eak} detection in water distribution
-networks is a critical task for reducing water losses, operating costs, and
-service disruptions. In real monitoring systems, leaks are rare events that
-must be detected from noisy multivariate time-series signals --- pressure,
-flow rate, and temperature --- collected across multiple geographically
-distributed sensors. This setting creates two practical difficulties: strong
-class imbalance (leak events represented fewer than 14\,\% of records after
-cleaning) and ambiguous temporal patterns that are not well captured by
-static threshold rules or single-timestep classifiers.
+\vspace{2.5em}
 
-This project develops and evaluates a deep learning pipeline for automated
-leak detection from multivariate sensor windows. The model combines three
-components: (1)~1D convolution layers that extract local temporal motifs
-such as sudden pressure drops, (2)~a bidirectional LSTM that aggregates
-sequence context in both temporal directions, and (3)~temporal attention that
-produces an importance-weighted summary of the window. The pipeline is paired
-with domain-informed feature engineering and calibration-based decision
-thresholding to support deployment-oriented trade-off analysis.
+{\color{titleblue}\Huge\bfseries Detection of Water Leaks in Urban\\[0.2em]
+Distribution Networks Using a CNN-BiLSTM\\[0.2em]
+Architecture with Self-Attention\\[0.2em]
+\par}
 
-The experimental data comprise 6{,}000 readings from ten sensors spanning
-three weeks (2024-01-01 to 2024-01-21). After burst exclusion, 5{,}590
-records are retained and transformed into 1{,}084 labelled windows for
-training and test evaluation.
+\vspace{1.5em}
 
-The main contributions are:
+{\large\bfseries Supervised by: Pr. Mostafa EZZIYANI\\[0.8em]
+Made By: ZARQI Ezzoubair, El Gharib Mahmoud\par}
 
-\begin{enumerate}[leftmargin=*, label=\arabic*.]
-\item A complete reproducible workflow from raw CSV data to model training,
-evaluation, and publication-ready figures, implemented across five Jupyter
-notebooks.
-\item A compact CNN-BiLSTM-attention architecture (23{,}778 parameters) trained
-with binary cross-entropy for binary leak/normal window classification.
-\item Three domain-informed engineered features --- pressure gradient,
-sensor-normalised flow z-score, and pressure-to-flow ratio --- grounded in
-hydraulic theory and validated through correlation analysis
-($r_{\text{Pressure, Leak}} = -0.606$).
-\item A calibrated operating threshold analysis ($\tau^{*} = 0.0200$) that
-highlights precision, recall, and false-alarm trade-offs for operational usage.
-\end{enumerate}
+}
+\end{flushleft}
 
-The remainder of this paper is organised as follows.
-Section~\ref{sec:related} summarises the relevant leak-detection and
-time-series modelling context. Section~\ref{sec:dataset} details the dataset,
-exploratory analysis, and preprocessing. Section~\ref{sec:methodology}
-presents the implemented training pipeline and model architecture.
-Section~\ref{sec:results} reports quantitative results with figure-based
-analysis. Sections~\ref{sec:discussion} and~\ref{sec:conclusion} discuss
-implications, limitations, and next steps.
+\vspace{1.5em}
 
+% Abstract
+\begin{leftbar}
+\textbf{\textcolor{headingblue}{ABSTRACT}} This paper presents an end-to-end
+deep learning framework for automatic leak detection in urban water distribution
+networks using multivariate sensor time series. The dataset consists of 5{,}590
+samples collected from ten sensors over a three-week monitoring period, including
+774 labelled leak events (13.8\,\%). The proposed pipeline integrates domain-informed
+feature engineering, sliding-window sequence construction ($W=20$, $S=5$), and
+a temporal train/calibration/test split to prevent data leakage.
+
+We propose a hybrid deep learning architecture combining Convolutional Neural
+Networks (CNN), Bidirectional Long Short-Term Memory (BiLSTM), and a self-attention
+mechanism. The CNN layers capture local temporal patterns, the BiLSTM models
+long-range bidirectional dependencies, and the attention mechanism highlights
+the most informative time steps. The model is trained using binary cross-entropy
+and evaluated with imbalance-aware metrics, including AUC-PR and calibrated
+decision thresholds.
+
+Experimental results demonstrate strong performance, achieving AUC-ROC $= 0.9412$
+and AUC-PR $= 0.9583$. At the selected operating threshold $\tau = 0.0333$, the
+model attains precision $= 0.9647$, recall $= 0.9011$, and F1-score $= 0.9318$,
+while maintaining a low false alarm rate of $0.0231$. These results highlight
+a well-balanced trade-off between detection sensitivity and false alarms,
+indicating that the proposed approach is suitable for reliable deployment in
+real-world smart water monitoring systems.
+\end{leftbar}
+
+\vspace{1em}
+
+% Keywords
+\begin{leftbar}
+\textbf{\textcolor{headingblue}{KEY-WORDS}} Water Leak Detection, Deep Learning,
+CNN-BiLSTM, Self-Attention, Multivariate Time Series, Sliding Window,
+Imbalanced Classification, Threshold Calibration, Smart Water Networks;
+\end{leftbar}
+
+\vspace{2.5em}
+}]

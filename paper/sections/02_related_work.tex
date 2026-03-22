@@ -1,54 +1,74 @@
-% =============================================================================
-% Section II — Related Work
-% =============================================================================
 \section{Related Work}
-\label{sec:related}
 
-\subsection{From Rule-Based Detection to Data-Driven Models}
-Traditional leak detection in water systems has historically relied on
-fixed thresholds, minimum night-flow analysis, and manual step-testing.
-These approaches are practical and interpretable but often miss subtle
-events or generate many false alarms under normal demand variation.
-Machine learning methods --- support vector machines, random forests, and
-k-nearest neighbours --- improved detection by learning patterns from
-historical sensor data. However, shallow models depend on handcrafted lag
-features and cannot natively model the multi-scale temporal dynamics that
-characterise leak onset, propagation, and recovery.
+Automatic leak detection in water distribution networks has been widely studied,
+with approaches ranging from traditional signal processing techniques to modern
+data-driven machine learning models. Existing methods can be broadly categorized
+into three groups: physics-based approaches, classical machine learning methods,
+and deep learning-based models.
 
-\subsection{Deep Learning for Multivariate Time Series}
-Deep models are now widely used for sensor anomaly detection because they
-learn temporal features directly from raw sequences. One-dimensional
-convolutional layers capture local change patterns such as rapid pressure
-drops, while recurrent layers model longer causal context across consecutive
-readings. Hybrid CNN-LSTM variants are especially effective for industrial
-time-series classification where both local motifs and long-range dependencies
-matter. For water distribution networks, LSTM-based models have been shown
-to outperform classical baselines on real pressure sensor data when leak
-events are present at the sequence level rather than the sample level.
-For this reason, the present work adopts a sequential CNN-BiLSTM design
-that processes per-sensor sliding windows.
+\subsection{Traditional and Physics-Based Methods}
 
-\subsection{Attention and Decision Thresholding}
-Self-attention mechanisms, adapted from natural language processing, allow
-sequence models to produce importance-weighted context vectors that highlight
-the most anomaly-relevant timesteps within each window. This property is
-particularly valuable for leak detection because the hydraulic signature
-of a leak is concentrated in a short segment of an otherwise normal pressure
-profile. Even with a well-trained scoring model, the final operational
-behaviour depends strongly on the chosen decision threshold. In leak
-detection, threshold selection can be more critical than raw AUC because
-operators may prioritise either high recall (zero missed leaks) or higher
-precision (fewer false alarms triggering unnecessary field inspections).
-This paper explicitly analyses threshold sensitivity in addition to
-standard ROC and PR metrics.
+Early work in leak detection primarily relied on hydraulic modeling and
+signal processing techniques. Methods based on pressure residual analysis,
+acoustic sensing, and flow balance estimation have been widely used in practice.
+These approaches typically depend on domain-specific knowledge and require
+accurate physical models of the water network. While effective in controlled
+environments, they often struggle in real-world scenarios due to noise,
+uncertainty, and the complexity of urban infrastructure systems.
 
-\subsection{Position of This Work}
-This project contributes a practical implementation and end-to-end analysis
-pipeline, not only a model architecture. It integrates data cleaning,
-domain-informed feature engineering, per-sensor windowing, compact sequence
-modelling with temporal attention, calibration-based threshold selection,
-and paper-ready visual reporting in one reproducible workflow. The model
-achieves non-trivial AUC-PR above the random baseline on a severely
-imbalanced 221-window test set while remaining deployable on
-resource-constrained hardware at under 24\,k parameters.
+\subsection{Machine Learning Approaches}
 
+With the increasing availability of sensor data, machine learning techniques
+have been introduced for leak detection tasks. Classical models such as
+Support Vector Machines (SVM), Random Forests, and Gradient Boosting have been
+applied to classify normal and anomalous behavior based on extracted features.
+These approaches improve scalability compared to rule-based systems but often
+require extensive feature engineering and may fail to capture temporal
+dependencies inherent in time-series data.
+
+\subsection{Deep Learning for Time-Series Leak Detection}
+
+Recent advances in deep learning have enabled more effective modeling of
+multivariate time-series data. Convolutional Neural Networks (CNN) have been
+used to capture local temporal patterns, while Recurrent Neural Networks (RNN),
+particularly Long Short-Term Memory (LSTM) networks, are capable of modeling
+long-term dependencies.
+
+Several studies have explored hybrid architectures combining CNN and LSTM
+to leverage both spatial and temporal feature extraction. These models have
+demonstrated improved performance compared to standalone approaches, especially
+in complex monitoring environments.
+
+More recently, attention mechanisms have been introduced to enhance sequence
+modeling by allowing models to focus on the most relevant time steps. Attention
+has been successfully applied in various time-series applications, improving both
+performance and interpretability. However, its application to water leak
+detection remains relatively limited.
+
+\subsection{Limitations of Existing Work}
+
+Despite these advances, several limitations remain. Many existing studies do not
+adequately address class imbalance, which is a critical challenge in leak
+detection where leak events are relatively rare. Furthermore, evaluation is often
+limited to accuracy-based metrics, which may not reflect real-world operational
+requirements such as minimizing false alarms.
+
+In addition, some approaches do not ensure strict separation between training and
+test data in temporal settings, potentially leading to data leakage and
+over-optimistic performance estimates.
+
+\subsection{Proposed Approach}
+
+To address these limitations, this paper proposes a hybrid CNN-BiLSTM architecture
+augmented with a self-attention mechanism for multivariate time-series leak
+detection. In contrast to prior work, the proposed approach integrates:
+
+\begin{itemize}
+    \item A combination of CNN and BiLSTM to capture both local and long-range temporal patterns,
+    \item A self-attention mechanism to identify the most informative time steps,
+    \item A leakage-free temporal data splitting strategy,
+    \item An imbalance-aware evaluation framework using AUC-PR and threshold calibration.
+\end{itemize}
+
+This combination enables robust and reliable leak detection while maintaining a
+balanced trade-off between detection sensitivity and false alarm rate.

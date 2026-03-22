@@ -1,101 +1,109 @@
-% =============================================================================
-% Section V — Results
-% =============================================================================
-\section{Results}
-\label{sec:results}
+\section{Experiments and Results}
 
-\subsection{Quantitative Performance on Test Set}
-Table~\ref{tab:metrics} reports the final evaluation on the 221-window test
-set at the calibrated threshold $\tau^{*} = 0.0200$. The AUC-PR of 0.4552
-is \textbf{10.5\,\% above the no-skill random baseline} of 0.4118 (equal to
-the test set positive rate of 91/221), confirming that the model learns a
-meaningful anomaly-scoring function.
+\subsection{Experimental Setup}
 
-\begin{table}[H]
+The proposed model is evaluated on a temporally separated test set to ensure
+realistic performance assessment and avoid data leakage. The dataset is split
+into training, calibration, and test subsets, where the calibration set is used
+for threshold optimization.
+
+Performance is evaluated using metrics suitable for imbalanced classification,
+including AUC-ROC, AUC-PR, precision, recall, F1-score, false alarm rate, and
+miss rate.
+
+\subsection{Training Behavior}
+
+\begin{figure}[h]
 \centering
-\caption{Final test-set metrics at $\tau^{*} = 0.0200$.}
-\label{tab:metrics}
-\begin{tabular}{lc}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-AUC-ROC                   & 0.5011 \\
-AUC-PR                    & 0.4552 \\
-AUC-PR random baseline    & 0.4118 \\
-\midrule
-Threshold $\tau^{*}$      & 0.0200 \\
-Leak Precision            & 0.4118 \\
-Leak Recall               & 1.0000 \\
-Leak F1-score             & 0.5833 \\
-Accuracy                  & 0.4118 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=0.9\columnwidth]{images/fig6_training_curves.png}
+\caption{Training and validation curves showing loss and AUC-PR evolution.}
+\label{fig:training_curves}
+\end{figure}
+
+Figure~\ref{fig:training_curves} shows the evolution of training and validation
+metrics during optimization. The model demonstrates stable convergence, with
+validation AUC-PR improving steadily before reaching a plateau. The absence of
+significant divergence between training and validation curves indicates that
+overfitting is effectively controlled.
+
+\subsection{Model Performance}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\columnwidth]{images/fig7_pr_roc_curves.png}
+\caption{Precision-Recall and ROC curves on the test set.}
+\label{fig:pr_roc}
+\end{figure}
+
+Figure~\ref{fig:pr_roc} presents the Precision-Recall (PR) and ROC curves
+evaluated on the test set. The model achieves an AUC-ROC of $0.9412$ and an
+AUC-PR of $0.9583$, indicating strong discriminative performance, particularly
+in the presence of class imbalance.
+
+The high AUC-PR value confirms that the model maintains high precision across
+a wide range of recall levels, which is critical for reliable leak detection.
 
 \subsection{Confusion Matrix Analysis}
-Figure~\ref{fig:cm_eval} shows the raw-count and row-normalised confusion
-matrices at $\tau^{*} = 0.0200$. All 221 test windows are predicted as Leak,
-meaning the 91 true leak windows are all captured (recall = 1.0) while all
-130 normal windows are false-positives. This recall-first behaviour is a
-direct consequence of the very low calibrated threshold: the model assigns
-probabilities predominantly above 0.020 to all windows.
 
-\begin{figure}[H]
+\begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{images/fig_confusion_matrix.jpg}
-\caption{Confusion matrix (raw counts and row-normalised) on the test set
-at $\tau = 0.0200$. All 221 windows are predicted Leak, yielding perfect
-recall and maximum false-alarm rate at this operating point.}
-\label{fig:cm_eval}
+\includegraphics[width=0.8\columnwidth]{images/fig8_confusion_matrix.png}
+\caption{Confusion matrix at the selected operating threshold.}
+\label{fig:confusion_matrix}
 \end{figure}
 
-\subsection{Ranking Performance (PR/ROC)}
-Figure~\ref{fig:prroc_eval} shows the precision-recall and ROC curves on
-the test set. The AUC-PR of 0.455 demonstrates meaningful score
-separability above the random baseline (AP = 0.41). The steep early rise
-in the PR curve indicates that the model correctly assigns the highest
-scores to a subset of true leak windows before precision degrades, while
-the ROC curve (AUC = 0.501) remains near the diagonal, reflecting the
-difficulty of the task on this test split.
+Figure~\ref{fig:confusion_matrix} illustrates the confusion matrix obtained at
+the selected operating threshold $\tau = 0.0333$. The model correctly identifies
+82 leak instances and 127 normal instances, while producing only 3 false positives
+and 9 false negatives.
 
-\begin{figure}[H]
+This corresponds to a precision of $0.9647$, recall of $0.9011$, and F1-score of
+$0.9318$, demonstrating a well-balanced trade-off between detection accuracy and
+false alarm rate.
+
+\subsection{Score Distribution Analysis}
+
+\begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{images/fig_pr_roc_curves.jpg}
-\caption{Precision-recall (left) and ROC (right) curves on the test set.
-The red dot marks the operating point at $\tau^{*} = 0.020$. The dashed
-line indicates the no-skill random baseline.}
-\label{fig:prroc_eval}
+\includegraphics[width=0.9\columnwidth]{images/fig_score_distribution.png}
+\caption{Distribution of predicted probabilities for leak and normal classes.}
+\label{fig:score_distribution}
 \end{figure}
 
-\subsection{Threshold Behaviour and Score Distribution}
-Figure~\ref{fig:score_dist_eval} shows the predicted probability distributions
-for Normal and Leak windows on the test set. Both distributions overlap
-substantially in the 0.2--0.8 range, explaining the limited AUC-ROC. However,
-Leak windows (n=91) show a marginally higher density at elevated scores,
-confirming a directionally correct ranking signal. The calibrated threshold
-$\tau^{*} = 0.020$ lies far to the left of both distributions, causing every
-window to be predicted Leak.
+Figure~\ref{fig:score_distribution} shows the distribution of predicted
+probabilities for both classes. Leak samples tend to have higher predicted
+scores, while normal samples are concentrated at lower values. The separation
+between the two distributions indicates that the model effectively discriminates
+between leak and non-leak conditions.
 
-\begin{figure}[H]
+\subsection{Threshold Sensitivity Analysis}
+
+\begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{images/fig_score_distribution.jpg}
-\caption{Predicted probability distributions for Normal (blue, n=130) and
-Leak (red, n=91) windows. The dashed vertical line marks $\tau^{*}=0.020$.
-Substantial overlap between classes reflects inherent task difficulty.}
-\label{fig:score_dist_eval}
+\includegraphics[width=0.9\columnwidth]{images/fig_threshold_sensitivity.png}
+\caption{Performance metrics as a function of the decision threshold.}
+\label{fig:threshold}
 \end{figure}
 
-Figure~\ref{fig:th_sens_eval} illustrates how precision, recall, and F1
-vary across the full threshold range. Recall remains at 1.0 for all
-thresholds below approximately 0.60, while precision and F1 peak near
-$\tau = 0.55$--$0.60$ where the curves intersect.
+Figure~\ref{fig:threshold} illustrates how precision, recall, and F1-score vary
+with the decision threshold. Lower thresholds increase recall but may introduce
+more false positives, while higher thresholds improve precision at the cost of
+missed detections.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\columnwidth]{images/fig_threshold_sensitivity.jpg}
-\caption{Leak precision, recall, and F1-score as a function of decision
-threshold. The dashed vertical line marks the deployed threshold
-$\tau^{*} = 0.020$. Peak F1 is achieved near $\tau = 0.58$.}
-\label{fig:th_sens_eval}
-\end{figure}
+The selected threshold $\tau = 0.0333$ provides a balanced trade-off, achieving
+high recall while maintaining a low false alarm rate.
 
+\subsection{Discussion}
+
+The experimental results demonstrate that the proposed CNN-BiLSTM-Attention
+architecture effectively captures both local and global temporal patterns in
+multivariate sensor data.
+
+Compared to earlier configurations, the final model significantly improves recall
+while maintaining high precision and a low false alarm rate. The use of threshold
+calibration plays a crucial role in achieving this balance, allowing the model to
+adapt to different operational requirements.
+
+Overall, the results confirm that the proposed approach is robust, reliable, and
+well-suited for real-world leak detection scenarios where both detection accuracy
+and operational efficiency are critical.

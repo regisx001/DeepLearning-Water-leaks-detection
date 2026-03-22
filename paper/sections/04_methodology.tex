@@ -1,88 +1,149 @@
-% =============================================================================
-% Section IV — Methodology
-% =============================================================================
 \section{Methodology}
-\label{sec:methodology}
 
-\subsection{Problem Formulation}
-Leak detection is formulated as binary classification on multivariate temporal
-windows. For each sample window $X \in \mathbb{R}^{W \times d}$, the model
-predicts the leak probability $\hat{y} \in [0,1]$, where $W=20$ timesteps and
-$d=6$ features. A binary decision is produced by thresholding at $\tau$:
-$\hat{y}_{\text{class}} = \mathbf{1}[\hat{y} \geq \tau]$.
+\subsection{Overview}
+
+The proposed framework is an end-to-end pipeline for automatic leak detection
+from multivariate time-series sensor data. It consists of four main stages:
+(i) data preprocessing and feature engineering, (ii) sequence construction using
+a sliding-window approach, (iii) deep learning-based classification using a
+hybrid CNN-BiLSTM-Attention architecture, and (iv) threshold calibration for
+operational decision-making.
+
+\subsection{Sliding Window Formulation}
+
+Given a multivariate time series $\mathbf{X} = \{x_1, x_2, \dots, x_T\}$, where
+$x_t \in \mathbb{R}^d$ represents the feature vector at time $t$, the data is
+transformed into supervised learning samples using a sliding window of size $W$
+and stride $S$.
+
+Each input sequence is defined as:
+
+\begin{equation}
+\mathbf{X}_t = \{x_t, x_{t+1}, \dots, x_{t+W-1}\}
+\end{equation}
+
+with corresponding label:
+
+\begin{equation}
+y_t \in \{0,1\}
+\end{equation}
+
+where $y_t = 1$ indicates the presence of a leak within the window.
+
+In this work, we use a window size of $W = 20$ and stride $S = 5$, enabling the
+model to capture short-term temporal patterns while maintaining sufficient
+sample diversity.
+
+\subsection{Feature Engineering}
+
+To enhance the representation of raw sensor signals, domain-informed features
+are constructed, including:
+
+\begin{itemize}
+    \item Pressure gradient to capture abrupt drops,
+    \item Flow rate normalization (z-score) to detect anomalies,
+    \item Pressure-to-flow ratio to model hydraulic relationships.
+\end{itemize}
+
+These features are combined with the original variables to form enriched input
+vectors for each time step.
 
 \subsection{Model Architecture}
-The implemented network follows a compact four-stage sequence stack totalling
-\textbf{23{,}778 trainable parameters}:
 
-\begin{enumerate}[leftmargin=*, label=\arabic*.]
-\item \textbf{Multi-scale CNN encoder.} Two Conv1D blocks with batch
-normalisation and ReLU activation extract local temporal patterns at
-complementary receptive-field scales: Conv1D(32 filters, kernel=3) followed
-by Conv1D(32 filters, kernel=5), each with \textsc{same} padding.
-Dropout($p=0.30$) follows the second block.
-\item \textbf{Bidirectional LSTM.} A Bidirectional LSTM with 32 units per
-direction (64-dimensional hidden state, 16{,}640 parameters) encodes
-temporal context in both the forward and backward directions, enabling the
-model to exploit pressure build-up before and hydraulic recovery after a
-leak event.
-\item \textbf{Temporal self-attention.} A Dense(1) scoring layer computes
-per-timestep importance logits; a Softmax normalises them into attention
-weights $\{\alpha_t\}_{t=1}^{W}$; and a weighted sum (Lambda layer) produces
-the 64-dimensional context vector $\mathbf{c} = \sum_t \alpha_t \mathbf{h}_t$.
-The weights $\{\alpha_t\}$ are directly interpretable as anomaly-relevance
-scores without additional tooling.
-\item \textbf{Classification head.} Dense(16, ReLU) followed by
-Dropout($p=0.40$) and a sigmoid Dense(1) output neuron producing $\hat{y}$.
-\end{enumerate}
+The proposed model integrates convolutional, recurrent, and attention-based
+components to capture both local and global temporal dependencies.
 
-\subsection{Training Protocol}
-Training is performed using \textbf{binary cross-entropy} loss and the
-\textbf{Adam} optimiser (initial learning rate $\eta_0 = 5\times10^{-4}$,
-batch size 32, up to 150 epochs). All random seeds are fixed at 42 for
-reproducibility (TensorFlow 2.21.0). The training procedure includes:
+\subsubsection{Convolutional Layers}
 
-\begin{itemize}[leftmargin=*]
-\item \textbf{EarlyStopping}: monitors calibration AUC-PR with patience 25
-epochs; best weights are automatically restored.
-\item \textbf{ReduceLROnPlateau}: halves $\eta$ when calibration AUC-PR
-stagnates for 8 consecutive epochs (floor $\eta_{\min}=10^{-6}$). The
-learning rate was reduced at epoch~42 ($\eta \to 2.5\times10^{-4}$).
-\item \textbf{ModelCheckpoint}: saves the state achieving the highest
-observed calibration AUC-PR (best: 0.9624).
-\item Feature standardisation fitted on the fit set only, applied
-identically to calibration and test data.
-\end{itemize}
+The input sequences are first processed by one-dimensional convolutional layers
+to extract local temporal patterns:
 
-Figure~\ref{fig:training_curves} summarises learning behaviour through BCE
-loss, AUC-ROC, and AUC-PR curves for both train and calibration sets.
+\begin{equation}
+h^{(c)} = \text{ReLU}(\text{Conv1D}(\mathbf{X}))
+\end{equation}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{images/fig6_training_curves.jpg}
-\caption{Training and calibration curves over 60 epochs. Left: BCE loss.
-Centre: AUC-ROC. Right: AUC-PR. Calibration AUC-PR stabilises near 0.95,
-indicating reliable convergence with moderate overfitting.}
-\label{fig:training_curves}
-\end{figure*}
+These layers act as feature extractors, identifying short-term variations such
+as pressure drops or flow spikes.
 
-\subsection{Threshold Selection and Evaluation}
-The model outputs continuous probabilities; final class decisions depend on
-the decision threshold $\tau$. Rather than defaulting to $\tau=0.5$, the
-operating threshold is selected from the calibration set by maximising the
-Leak $F_1$ score:
-\[
-\tau^{*} = \arg\max_{\tau}\;
-\frac{2 \cdot \text{Pr}(\tau) \cdot \text{Re}(\tau)}
-     {\text{Pr}(\tau) + \text{Re}(\tau)}
-\]
-yielding $\tau^{*} = 0.0200$, which is then applied unchanged to the test set.
-Evaluation on test data reports:
-\begin{itemize}[leftmargin=*]
-\item \textbf{Ranking metrics}: AUC-ROC and AUC-PR (threshold-invariant).
-\item \textbf{Operating-point metrics}: precision, recall, F1-score (Leak
-class), and accuracy at $\tau^{*}$.
-\item \textbf{Diagnostics}: confusion matrix, score distribution, and
-threshold-sensitivity sweep.
-\end{itemize}
+\subsubsection{Bidirectional LSTM}
+
+The extracted features are then passed to a Bidirectional LSTM (BiLSTM), which
+captures long-range dependencies in both forward and backward directions:
+
+\begin{equation}
+h^{(l)} = \text{BiLSTM}(h^{(c)})
+\end{equation}
+
+This allows the model to consider both past and future context within each
+sequence, which is particularly important for detecting gradual leak patterns.
+
+\subsubsection{Self-Attention Mechanism}
+
+To focus on the most informative time steps, a self-attention mechanism is
+applied over the BiLSTM outputs:
+
+\begin{equation}
+\alpha_t = \frac{\exp(e_t)}{\sum_{k} \exp(e_k)}, \quad
+e_t = \mathbf{v}^\top \tanh(\mathbf{W} h^{(l)}_t)
+\end{equation}
+
+The final context vector is computed as a weighted sum:
+
+\begin{equation}
+c = \sum_t \alpha_t h^{(l)}_t
+\end{equation}
+
+This mechanism enables the model to prioritize relevant temporal segments
+associated with leak events.
+
+\subsubsection{Output Layer}
+
+The context vector is passed through a fully connected layer with sigmoid
+activation to produce the final prediction:
+
+\begin{equation}
+\hat{y} = \sigma(\mathbf{W}_o c + b)
+\end{equation}
+
+where $\hat{y} \in [0,1]$ represents the probability of a leak.
+
+\subsection{Training Strategy}
+
+The model is trained using binary cross-entropy loss:
+
+\begin{equation}
+\mathcal{L} = - \frac{1}{N} \sum_{i=1}^{N} \left[
+y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i)
+\right]
+\end{equation}
+
+To ensure robust generalization, the dataset is split into training,
+calibration, and test sets using temporal separation, preventing data leakage.
+
+Early stopping is applied based on the validation AUC-PR, and learning rate
+scheduling is used to stabilize training.
+
+\subsection{Threshold Calibration}
+
+Instead of using a fixed threshold (e.g., 0.5), the decision threshold is
+optimized on a calibration set to balance precision and recall:
+
+\begin{equation}
+\hat{y}_{final} =
+\begin{cases}
+1 & \text{if } \hat{y} \geq \tau \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+
+This allows the model to operate under different regimes depending on
+application requirements, such as minimizing false alarms or maximizing
+detection sensitivity.
+
+\subsection{Implementation Details}
+
+The model is implemented using a deep learning framework with a compact
+architecture comprising approximately 23{,}000 trainable parameters.
+Optimization is performed using the Adam optimizer, and training is conducted
+over multiple epochs with mini-batch updates.
 
