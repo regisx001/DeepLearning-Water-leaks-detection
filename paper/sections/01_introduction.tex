@@ -6,35 +6,48 @@
 \lettrine[lines=2]{\color{titleblue}L}{eak} detection in water distribution
 networks is a critical task for reducing water losses, operating costs, and
 service disruptions. In real monitoring systems, leaks are rare events that
-must be detected from noisy multivariate time-series signals (pressure, flow,
-temperature) collected across multiple sensors. This setting creates two
-practical difficulties: strong class imbalance and ambiguous temporal patterns
-that are not well captured by static threshold rules.
+must be detected from noisy multivariate time-series signals --- pressure,
+flow rate, and temperature --- collected across multiple geographically
+distributed sensors. This setting creates two practical difficulties: strong
+class imbalance (leak events represented fewer than 14\,\% of records after
+cleaning) and ambiguous temporal patterns that are not well captured by
+static threshold rules or single-timestep classifiers.
 
-This project develops and evaluates a deep learning pipeline for automated leak
-detection from sensor windows. The model combines three components: (1) 1D
-convolution layers for local temporal patterns, (2) a bidirectional LSTM for
-sequence context, and (3) temporal attention for weighted aggregation across
-timesteps. The pipeline is paired with feature engineering and calibration-based
-decision thresholding to support deployment-oriented trade-off analysis.
+This project develops and evaluates a deep learning pipeline for automated
+leak detection from multivariate sensor windows. The model combines three
+components: (1)~1D convolution layers that extract local temporal motifs
+such as sudden pressure drops, (2)~a bidirectional LSTM that aggregates
+sequence context in both temporal directions, and (3)~temporal attention that
+produces an importance-weighted summary of the window. The pipeline is paired
+with domain-informed feature engineering and calibration-based decision
+thresholding to support deployment-oriented trade-off analysis.
+
+The experimental data comprise 6{,}000 readings from ten sensors spanning
+three weeks (2024-01-01 to 2024-01-21). After burst exclusion, 5{,}590
+records are retained and transformed into 1{,}084 labelled windows for
+training and test evaluation.
 
 The main contributions are:
 
 \begin{enumerate}[leftmargin=*, label=\arabic*.]
-    \item A complete reproducible workflow from raw CSV data to model training,
-          evaluation, and publication-ready figures.
-    \item A compact CNN-BiLSTM-attention architecture trained with binary
-          cross-entropy for leak classification.
-    \item A calibrated operating threshold analysis that highlights precision,
-          recall, and false-alarm trade-offs for operational usage.
-    \item A LaTeX paper structure aligned with generated experimental figures
-          for direct reporting.
+\item A complete reproducible workflow from raw CSV data to model training,
+evaluation, and publication-ready figures, implemented across five Jupyter
+notebooks.
+\item A compact CNN-BiLSTM-attention architecture (23{,}778 parameters) trained
+with binary cross-entropy for binary leak/normal window classification.
+\item Three domain-informed engineered features --- pressure gradient,
+sensor-normalised flow z-score, and pressure-to-flow ratio --- grounded in
+hydraulic theory and validated through correlation analysis
+($r_{\text{Pressure, Leak}} = -0.606$).
+\item A calibrated operating threshold analysis ($\tau^{*} = 0.0200$) that
+highlights precision, recall, and false-alarm trade-offs for operational usage.
 \end{enumerate}
 
-The remainder of this paper is organized as follows. Section~\ref{sec:related}
-summarizes the relevant leak-detection and time-series modeling context.
-Section~\ref{sec:dataset} details the dataset, exploratory analysis, and
-preprocessing. Section~\ref{sec:methodology} presents the implemented training
-pipeline and model architecture. Section~\ref{sec:results} reports quantitative
-results with figure-based analysis. Sections~\ref{sec:discussion} and
-\ref{sec:conclusion} discuss implications, limitations, and next steps.
+The remainder of this paper is organised as follows.
+Section~\ref{sec:related} summarises the relevant leak-detection and
+time-series modelling context. Section~\ref{sec:dataset} details the dataset,
+exploratory analysis, and preprocessing. Section~\ref{sec:methodology}
+presents the implemented training pipeline and model architecture.
+Section~\ref{sec:results} reports quantitative results with figure-based
+analysis. Sections~\ref{sec:discussion} and~\ref{sec:conclusion} discuss
+implications, limitations, and next steps.

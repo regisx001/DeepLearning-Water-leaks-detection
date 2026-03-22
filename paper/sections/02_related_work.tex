@@ -6,36 +6,49 @@
 
 \subsection{From Rule-Based Detection to Data-Driven Models}
 Traditional leak detection in water systems has historically relied on
-fixed thresholds, hydraulic rules, and manual field inspection. These
-approaches are practical and interpretable, but they often miss subtle
-events or trigger many false alarms under normal demand variation.
-
-Machine learning methods improved this by learning patterns from historical
-sensor data. However, shallow models usually depend on static features and
-cannot fully exploit temporal dependencies that characterize leak dynamics.
+fixed thresholds, minimum night-flow analysis, and manual step-testing.
+These approaches are practical and interpretable but often miss subtle
+events or generate many false alarms under normal demand variation.
+Machine learning methods --- support vector machines, random forests, and
+k-nearest neighbours --- improved detection by learning patterns from
+historical sensor data. However, shallow models depend on handcrafted lag
+features and cannot natively model the multi-scale temporal dynamics that
+characterise leak onset, propagation, and recovery.
 
 \subsection{Deep Learning for Multivariate Time Series}
 Deep models are now widely used for sensor anomaly detection because they
-can learn temporal features directly from sequences. In this context,
-convolution layers capture local changes (for example, sudden pressure drops),
-while recurrent layers model longer temporal context.
-
-Hybrid CNN-LSTM variants are especially suitable for industrial time-series
-classification where both local and long-range patterns matter. For this
-reason, the present work adopts a sequential CNN-BiLSTM design.
+learn temporal features directly from raw sequences. One-dimensional
+convolutional layers capture local change patterns such as rapid pressure
+drops, while recurrent layers model longer causal context across consecutive
+readings. Hybrid CNN-LSTM variants are especially effective for industrial
+time-series classification where both local motifs and long-range dependencies
+matter. For water distribution networks, LSTM-based models have been shown
+to outperform classical baselines on real pressure sensor data when leak
+events are present at the sequence level rather than the sample level.
+For this reason, the present work adopts a sequential CNN-BiLSTM design
+that processes per-sensor sliding windows.
 
 \subsection{Attention and Decision Thresholding}
-Attention mechanisms help aggregate sequence information by weighting more
-informative timesteps. Even with a good ranking model, the final operational
-behavior depends strongly on the chosen decision threshold.
-
-In leak detection, threshold selection is often more critical than raw AUC,
-because operators may prioritize either high recall (avoid missed leaks) or
-higher precision (avoid false alarms). Therefore, this paper explicitly reports
-threshold sensitivity in addition to standard ROC/PR metrics.
+Self-attention mechanisms, adapted from natural language processing, allow
+sequence models to produce importance-weighted context vectors that highlight
+the most anomaly-relevant timesteps within each window. This property is
+particularly valuable for leak detection because the hydraulic signature
+of a leak is concentrated in a short segment of an otherwise normal pressure
+profile. Even with a well-trained scoring model, the final operational
+behaviour depends strongly on the chosen decision threshold. In leak
+detection, threshold selection can be more critical than raw AUC because
+operators may prioritise either high recall (zero missed leaks) or higher
+precision (fewer false alarms triggering unnecessary field inspections).
+This paper explicitly analyses threshold sensitivity in addition to
+standard ROC and PR metrics.
 
 \subsection{Position of This Work}
-This project contributes a practical implementation and analysis pipeline,
-not only a model architecture. It integrates data cleaning, feature engineering,
-windowing, sequence modeling, calibration-based threshold selection, and
-paper-ready visual reporting in one reproducible workflow.
+This project contributes a practical implementation and end-to-end analysis
+pipeline, not only a model architecture. It integrates data cleaning,
+domain-informed feature engineering, per-sensor windowing, compact sequence
+modelling with temporal attention, calibration-based threshold selection,
+and paper-ready visual reporting in one reproducible workflow. The model
+achieves non-trivial AUC-PR above the random baseline on a severely
+imbalanced 221-window test set while remaining deployable on
+resource-constrained hardware at under 24\,k parameters.
+

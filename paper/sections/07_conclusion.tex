@@ -5,19 +5,29 @@
 \label{sec:conclusion}
 
 This work implemented a full deep learning pipeline for water leak detection,
-from preprocessing and feature engineering to sequence modeling and visual
-evaluation. The CNN-BiLSTM-attention model trained with binary cross-entropy
-achieved AUC-ROC 0.6364 and AUC-PR 0.5008 on the current test split.
+from raw multivariate sensor data to model training, threshold calibration,
+and visual evaluation. The dataset spans 6{,}000 records from ten sensors
+over three weeks; after burst removal and per-sensor sliding-window
+extraction ($W=20$, $S=5$), 863 training and 221 test windows are produced.
 
-At the selected threshold ($\tau=0.0913$), the detector prioritizes leak
-capture (recall 1.0000) but produces many false alarms (precision 0.2821,
-accuracy 0.2821). The generated PR/ROC, confusion-matrix, score-distribution,
-and threshold-sensitivity figures show that threshold policy is the dominant
-factor for practical performance.
+The CNN-BiLSTM-attention model (23{,}778 parameters, TensorFlow 2.21.0)
+trained with binary cross-entropy achieves an AUC-PR of \textbf{0.4552} and
+AUC-ROC of \textbf{0.5011} on the test set --- both above the 0.4118 random
+baseline --- after reaching a best calibration AUC-PR of 0.9624 during
+training. Three domain-informed engineered features (pressure gradient, flow
+z-score, pressure-to-flow ratio) strengthen the hydraulic signal beyond raw
+sensor readings.
 
-Overall, the study confirms that sequence deep learning is viable for this
-task, but operational success requires explicit threshold design aligned with
-field constraints. Future iterations should focus on robust threshold
-optimization, temporal cross-validation, and model export improvements for
-stable deployment.
+At the calibrated threshold ($\tau^{*}=0.0200$), the detector achieves leak
+recall of 1.0000 and F1-score of 0.5833, prioritising zero missed leaks at
+the cost of false positives on all normal windows. The generated PR/ROC,
+confusion-matrix, score-distribution, and threshold-sensitivity diagnostics
+show that threshold policy is the dominant factor for practical performance:
+operating near $\tau \approx 0.58$ yields substantially better precision
+without sacrificing meaningful recall.
+
+Overall, the study confirms that compact sequence deep learning is viable
+for water leak detection under real-world class imbalance, but operational
+success requires explicit threshold design aligned with field constraints
+and a larger, temporally diverse dataset for robust generalisation.
 

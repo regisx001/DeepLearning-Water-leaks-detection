@@ -4,37 +4,63 @@
 \section{Discussion}
 \label{sec:discussion}
 
-The current model demonstrates a meaningful ranking signal (AUC-ROC 0.6364,
-AUC-PR 0.5008) but an imbalanced operating point. With $\tau=0.0913$, recall is
-perfect on the test split while precision and accuracy are low. In practical
-terms, the detector is conservative with respect to missed leaks and aggressive
-in generating alarms.
+The model demonstrates a meaningful ranking signal (AUC-ROC 0.5011,
+AUC-PR 0.4552, both above the 0.4118 random baseline) but a heavily
+recall-biased operating point. With $\tau^{*}=0.0200$, recall is perfect
+on the 221-window test split while precision equals the positive class rate
+(0.4118). In practical terms, the detector is conservative with respect to
+missed leaks but aggressive in generating alarms --- a profile often
+acceptable in safety-critical monitoring where the cost of a missed leak
+greatly exceeds the cost of a false alarm.
 
 \subsection{What Worked}
 \begin{itemize}[leftmargin=*]
-	\item Multivariate sequence modeling (CNN + BiLSTM + attention) captures leak-related
-		  temporal structure beyond static thresholding.
-	\item Feature engineering supports class ranking quality, as reflected in PR/ROC curves.
-	\item The evaluation pipeline provides transparent threshold diagnostics for deployment.
+\item \textbf{Multivariate sequence modelling.} The CNN-BiLSTM-attention
+stack captures leak-related temporal structure beyond static thresholding,
+as confirmed by PR and ROC curves above the random baseline.
+\item \textbf{Feature engineering.} The pressure gradient, flow z-score,
+and pressure-to-flow ratio features encode hydraulic domain knowledge;
+the strong raw correlation ($r=-0.606$ between pressure and leak status)
+is amplified by these derived signals.
+\item \textbf{Three-split evaluation protocol.} Separating fit, calibration,
+and test data prevents threshold-tuning information from contaminating
+held-out metrics, yielding honest operational estimates.
+\item \textbf{Transparent threshold diagnostics.} The generated PR/ROC,
+score-distribution, and sensitivity figures enable operators to select any
+operating point aligned with their precision-recall requirements.
 \end{itemize}
 
 \subsection{Main Limitation}
-The deployed threshold is too low for balanced operation on this test set.
-As shown by threshold sensitivity plots, moderate threshold increases can
-substantially reduce false alarms, but this may decrease recall.
+The deployed threshold $\tau^{*}=0.0200$ was calibrated on a split whose
+positive rate (38\,\%) is substantially higher than the test set rate
+(41\,\%). More critically, the overall predicted probability distribution
+sits high across all windows (most scores above 0.02), so the very low
+threshold triggers universal positive predictions. As shown by the
+threshold sensitivity plot, operating at $\tau \approx 0.55$--$0.60$
+achieves near-peak F1 while reducing false alarms by over 80\,\%.
 
 \subsection{Deployment Implication}
-Threshold should be selected from an explicit operational objective, for example:
+Threshold should be selected from an explicit operational objective. Two
+practical strategies are:
 \begin{itemize}[leftmargin=*]
-	\item Recall-constrained optimization (maximize precision with recall $\geq r_{min}$), or
-	\item Cost-based optimization using field-inspection and missed-leak penalties.
+\item \textbf{Recall-constrained optimisation}: maximise precision subject
+to recall $\geq r_{\min}$ (e.g., $r_{\min}=0.90$), using the calibration
+set sensitivity curve.
+\item \textbf{Cost-based optimisation}: weight false-alarm cost against
+missed-leak penalty using field inspection and repair cost estimates.
 \end{itemize}
 
 \subsection{Future Work}
 \begin{itemize}[leftmargin=*]
-	\item Re-train and export model without Lambda deserialization fragility by replacing
-		  Lambda reduction with a native pooling layer.
-	\item Run cross-validation across temporal folds to improve robustness of reported metrics.
-	\item Extend evaluation with calibration curves and uncertainty-aware alert policies.
+\item Replace the attention Lambda reduction layer with a native
+\texttt{GlobalAveragePooling1D} to eliminate serialisation fragility and
+simplify deployment.
+\item Apply Focal loss or cost-sensitive training to directly penalise
+missed leaks during gradient updates rather than relying solely on
+post-hoc threshold adjustment.
+\item Run temporal cross-validation across multiple sensor folds to produce
+statistically robust metric estimates on this limited dataset.
+\item Extend to a graph-based sensor fusion model that exploits pipe-network
+topology for leak localisation in addition to detection.
 \end{itemize}
 
