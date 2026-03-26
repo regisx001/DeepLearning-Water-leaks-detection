@@ -24,7 +24,10 @@
 \usepackage{lettrine}     % For the large drop-cap letter
 \usepackage{xcolor}       % For the custom blue colors
 \usepackage{mdframed}     % For the borders next to the abstract
-
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{references.bib}
 % --- Custom Colors ---
 \definecolor{titleblue}{HTML}{2B79B9}   % Darker blue for the main title & line
 \definecolor{headingblue}{HTML}{84BEE7} % Lighter blue for sections & abstract
@@ -75,5 +78,8 @@
 \input{sections/05_results}
 \input{sections/06_discussion}
 \input{sections/07_conclusion}
+
+\nocite{*}
+\printbibliography
 
 \end{document}

@@ -1,33 +1,57 @@
 \section{Conclusion}
 
-This paper presented an end-to-end deep learning framework for automatic water
-leak detection in urban distribution networks using multivariate time-series
-sensor data. The proposed approach integrates domain-informed feature
-engineering, sliding-window sequence construction, and a hybrid
+\noindent This paper presented an end-to-end deep learning framework for automatic
+water leak detection in urban distribution networks using multivariate
+time-series sensor data. The proposed approach integrates domain-informed
+feature engineering, sliding-window sequence construction, and a hybrid
 CNN-BiLSTM-Attention architecture to effectively capture both local and
 long-range temporal dependencies.
 
-Experimental results demonstrate that the model achieves strong performance in
-detecting leak events, with high AUC-ROC and AUC-PR scores and a favorable
-balance between precision and recall. The use of threshold calibration further
-enhances the practical applicability of the system by allowing flexible control
-over the trade-off between detection sensitivity and false alarm rate. This is
-particularly important in real-world monitoring scenarios where operational
-constraints must be carefully considered.
+\vspace{0.2cm}
 
-The results confirm that combining convolutional, recurrent, and attention-based
-mechanisms provides a powerful solution for time-series leak detection. In
-addition, the proposed pipeline emphasizes the importance of proper data
-preprocessing, leakage-free evaluation, and imbalance-aware metrics, which are
-critical for developing reliable and deployable machine learning systems.
+\noindent Experimental results demonstrate that the model achieves strong performance,
+with a favorable balance between precision, recall, and false alarm rate.
+Benchmark comparisons further confirm that the proposed model provides superior
+operational performance compared to classical and deep learning baselines,
+highlighting the effectiveness of the hybrid architecture.
 
-Future work will focus on extending the model to more diverse datasets and
-network configurations, incorporating baseline comparisons and ablation studies,
-and improving interpretability. Furthermore, expanding the framework to support
-leak localization and severity estimation represents a promising direction for
-enhancing its utility in smart water management systems.
+\vspace{0.2cm}
 
-Overall, this work contributes to the development of intelligent and reliable
-monitoring solutions for urban water infrastructure, with potential benefits in
-reducing water loss, improving operational efficiency, and supporting
-sustainable resource management.
+\noindent The results emphasize the importance of combining advanced modeling
+techniques with robust data preprocessing, leakage-free evaluation, and
+threshold calibration to develop reliable and deployable monitoring systems.
+
+\vspace{0.2cm}
+
+\noindent Future work will focus on evaluating the model on more diverse datasets,
+extending the benchmark with additional approaches, and improving
+interpretability. Furthermore, integrating leak localization and severity
+estimation represents a promising direction for enhancing practical applicability.
+
+\vspace{0.2cm}
+
+\noindent Overall, this work contributes to the development of intelligent and
+reliable solutions for urban water monitoring, supporting improved infrastructure
+management and reduced water loss.
+
+\vspace{0.2cm}
+
+\noindent \textbf{Potential Applications.}
+The proposed framework can be integrated into Internet of Things (IoT)-based
+smart water management systems for real-time leak detection and monitoring.
+By continuously processing sensor data streams, the model can provide early
+warnings of leak events, enabling faster response and reducing water loss.
+
+\vspace{0.2cm}
+
+\noindent In addition, the system can be extended to support automated control mechanisms,
+such as dynamic valve management. In the event of a detected leak, the model
+can trigger automatic valve closure or flow regulation to isolate affected
+segments of the network, thereby minimizing damage and operational disruption.
+
+\vspace{0.2cm}
+
+\noindent Such integration enables the transition from reactive maintenance to proactive
+and autonomous infrastructure management, improving system reliability and
+operational efficiency. The proposed approach therefore represents a key
+building block for next-generation smart water distribution systems.

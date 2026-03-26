@@ -1,52 +1,37 @@
 \section{Discussion}
 
-The experimental results demonstrate that the proposed CNN-BiLSTM-Attention
+\noindent The experimental results demonstrate that the proposed CNN-BiLSTM-Attention
 architecture is effective for detecting water leaks in multivariate time-series
-data. The model achieves high AUC-ROC and AUC-PR scores, indicating strong
-discriminative capability even in the presence of class imbalance. In addition,
-the selected operating point provides a favorable balance between precision and
-recall, with a low false alarm rate and a high detection rate for leak events.
+data. The model achieves strong discriminative performance and provides a
+balanced trade-off between precision, recall, and false alarm rate, which is
+critical for real-world monitoring systems.
 
-A key strength of the proposed approach lies in its ability to capture both
-local and long-range temporal dependencies. The convolutional layers extract
-short-term patterns such as abrupt pressure drops or flow spikes, while the
-BiLSTM component models temporal relationships across the sequence. The
-self-attention mechanism further enhances the model by assigning higher
-importance to informative time steps, allowing it to focus on critical segments
-associated with leak events.
+\vspace{0.2cm}
 
-Another important contribution is the use of threshold calibration to control
-the trade-off between detection sensitivity and false alarms. Rather than relying
-on a fixed decision threshold, the model can be tuned to meet specific operational
-requirements. For example, in safety-critical environments, a lower threshold may
-be preferred to maximize recall, while in cost-sensitive scenarios, a higher
-threshold may be used to reduce false alarms. This flexibility makes the proposed
-framework suitable for real-world deployment.
+\noindent The benchmark comparison highlights key differences between approaches.
+While Random Forest achieves strong AUC-PR, it exhibits lower recall and F1-score
+at the selected operating point. Logistic Regression performs competitively due
+to feature engineering but lacks the ability to model temporal dependencies.
+In contrast, the proposed model achieves the best overall balance, confirming
+the importance of combining convolutional, recurrent, and attention-based
+mechanisms.
 
-The analysis of score distributions and threshold sensitivity further confirms
-that the model produces well-separated probability outputs for leak and normal
-classes. This indicates that the learned representations are meaningful and that
-the classification boundary is well-defined. Moreover, the low number of false
-positives observed in the confusion matrix suggests that the model avoids
-over-triggering alarms, which is a common issue in anomaly detection systems.
+\vspace{0.2cm}
 
-Despite these promising results, several limitations should be acknowledged.
-First, the dataset used in this study is limited to a specific monitoring period
-and network configuration, which may restrict the generalization of the model to
-other environments. Second, while the model demonstrates strong performance, it
-has not been compared against a wide range of baseline methods, which would
-provide a more comprehensive evaluation. Third, the deep learning model operates
-as a black-box system, and although attention mechanisms provide some level of
-interpretability, further analysis is needed to fully understand the decision
-process.
+\noindent Another important aspect is the use of threshold calibration, which allows
+the model to adapt to different operational requirements by controlling the
+trade-off between detection sensitivity and false alarms. This flexibility is
+essential for practical deployment in real-world systems.
 
-Future work will focus on addressing these limitations by evaluating the model
-on additional datasets, incorporating baseline comparisons, and exploring more
-interpretable architectures. In addition, extending the framework to support
-leak localization and severity estimation would further enhance its practical
-utility in smart water management systems.
+\vspace{0.2cm}
 
-Overall, the results highlight the effectiveness of combining convolutional,
-recurrent, and attention-based mechanisms for time-series leak detection, and
-demonstrate the importance of integrating data processing, modeling, and
-decision calibration into a unified framework.
+\noindent Despite these promising results, some limitations remain. The dataset is
+restricted to a specific monitoring period, which may limit generalization.
+Additionally, the benchmark comparison could be extended to include more models,
+and the interpretability of the deep learning architecture remains limited.
+
+\vspace{0.2cm}
+
+\noindent Overall, the results confirm that hybrid deep learning architectures are
+well-suited for time-series leak detection, particularly when combined with
+robust preprocessing and evaluation strategies.
