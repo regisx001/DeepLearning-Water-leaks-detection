@@ -15,13 +15,13 @@ real-world conditions, where leak occurrences are relatively rare compared to
 normal system operation.
 
 Each observation is associated with a binary label indicating the presence or
-absence of a leak. To enable supervised learning, the data is later transformed
-into fixed-length sequences using a sliding-window approach.
+absence of a leak. To enable supervised learning, the data is subsequently
+transformed into fixed-length sequences using a sliding-window approach.
 
 \subsection{Distribution Analysis}
 
 To better understand the characteristics of the data, we first analyze the
-distribution of key variables for normal and leak conditions.
+distribution of key variables under normal and leak conditions.
 
 \begin{figure}[h]
 \centering
@@ -31,9 +31,9 @@ distribution of key variables for normal and leak conditions.
 \end{figure}
 
 As shown in Figure~\ref{fig:pressure_distribution}, pressure values during leak
-events tend to be lower compared to normal operating conditions. This shift
-reflects the physical behavior of the system, where leaks lead to pressure
-drops in the network.
+events are systematically lower than those observed under normal operating
+conditions. This shift reflects the underlying hydraulic behavior, where leaks
+induce pressure drops within the network.
 
 \begin{figure}[h]
 \centering
@@ -42,15 +42,15 @@ drops in the network.
 \label{fig:flow_distribution}
 \end{figure}
 
-Figure~\ref{fig:flow_distribution} shows that flow rate values are generally
-higher and more dispersed during leak conditions. This behavior is consistent
-with the expectation that leaks introduce additional flow demand, increasing
-the variability of the signal.
+Figure~\ref{fig:flow_distribution} shows that flow rate values exhibit higher
+variability and a slight increase during leak conditions. This behavior is
+consistent with the expected increase in water discharge associated with leaks,
+leading to more dispersed flow patterns.
 
 \subsection{Temporal Behavior of Leak Events}
 
-To analyze the temporal dynamics of the system, we examine sensor-level
-time-series data with annotated leak events.
+To analyze temporal dynamics, we examine sensor-level time-series data with
+annotated leak events.
 
 \begin{figure}[h]
 \centering
@@ -61,14 +61,15 @@ variations with leak events highlighted.}
 \end{figure}
 
 Figure~\ref{fig:timeseries} illustrates the temporal evolution of pressure and
-flow rate for a representative sensor. Leak events are associated with noticeable
-fluctuations, including pressure drops and irregular flow patterns. These
-temporal dependencies highlight the need for sequence-based models capable of
-capturing both short-term variations and long-term trends.
+flow rate for a representative sensor. Leak events manifest as structured
+temporal patterns, including sustained pressure drops and correlated flow
+fluctuations. These observations highlight that leak detection cannot be treated
+as a point-wise anomaly detection problem, but rather requires sequence-based
+models capable of capturing temporal dependencies.
 
 \subsection{Feature Correlation Analysis}
 
-To assess relationships between variables, we compute the correlation matrix
+To quantify relationships between variables, we compute the correlation matrix
 of the main features.
 
 \begin{figure}[h]
@@ -79,23 +80,27 @@ of the main features.
 \end{figure}
 
 As shown in Figure~\ref{fig:correlation}, pressure exhibits a strong negative
-correlation with leak status ($-0.606$), confirming its importance as a key
-indicator of leaks. In contrast, flow rate shows a weaker positive correlation,
-while temperature appears to have minimal direct influence on leak occurrence.
+correlation with leak status ($-0.606$), confirming its role as a primary
+indicator of leak events. Flow rate shows a weaker positive correlation,
+while temperature has negligible correlation, indicating limited direct
+influence on leak detection.
 
-These observations motivate the use of feature engineering and deep learning
-models to capture nonlinear interactions between variables.
+These results suggest that while individual features provide useful signals,
+their relationships are inherently nonlinear and interdependent, motivating
+the use of advanced learning models capable of capturing such interactions.
 
 \subsection{Discussion}
 
-The exploratory analysis reveals several important characteristics of the dataset:
+The exploratory analysis reveals several key characteristics of the dataset:
 
 \begin{itemize}
-    \item Leak events are associated with lower pressure and higher flow variability.
-    \item Temporal patterns play a critical role in distinguishing leaks from normal operation.
-    \item The dataset exhibits class imbalance, requiring appropriate evaluation metrics.
-    \item Linear correlations alone are insufficient to fully characterize leak behavior.
+    \item Leak events are associated with lower pressure and increased flow variability.
+    \item Temporal structure is essential for distinguishing leak patterns from normal behavior.
+    \item The dataset exhibits significant class imbalance, requiring appropriate evaluation strategies.
+    \item Linear relationships alone are insufficient to fully capture leak dynamics.
 \end{itemize}
 
-These findings justify the use of a hybrid deep learning architecture capable of
-modeling complex temporal dependencies and nonlinear feature interactions.
+These findings justify the use of hybrid deep learning architectures and
+sequence-based modeling approaches. In addition, they motivate the need for
+robust evaluation and comparison with alternative models, as explored in the
+subsequent sections.

@@ -1,0 +1,161 @@
+\section{Méthodologie}
+
+\subsection{Vue d'ensemble}
+
+Le cadre proposé est une chaîne de traitement complète pour la détection
+automatique des fuites à partir de séries temporelles multivariées de capteurs.
+Il se compose de quatre étapes principales : (i) prétraitement des données et
+ingénierie de caractéristiques, (ii) construction de séquences par approche
+fenêtre glissante, (iii) classification via une architecture hybride
+CNN-BiLSTM-Attention, et (iv) calibration du seuil pour la prise de décision
+opérationnelle.
+
+La même stratégie de prétraitement et de découpage des données est appliquée à
+tous les modèles considérés dans cette étude afin de garantir une comparaison
+équitable dans l'évaluation de benchmark.
+
+\subsection{Formulation par fenêtre glissante}
+
+Soit une série temporelle multivariée $\mathbf{X} = \{x_1, x_2, \dots, x_T\}$,
+où $x_t \in \mathbb{R}^d$ représente le vecteur de caractéristiques à l'instant
+$t$. Les données sont transformées en échantillons d'apprentissage supervisé à
+l'aide d'une fenêtre glissante de taille $W$ et de pas $S$.
+
+Chaque séquence d'entrée est définie par :
+
+\begin{equation}
+\mathbf{X}_t = \{x_t, x_{t+1}, \dots, x_{t+W-1}\}
+\end{equation}
+
+avec l'étiquette associée :
+
+\begin{equation}
+y_t \in \{0,1\}
+\end{equation}
+
+où $y_t = 1$ indique la présence d'au moins un événement de fuite dans la fenêtre.
+
+Dans ce travail, une taille de fenêtre $W = 20$ et un pas $S = 5$ sont utilisés,
+ce qui permet au modèle de capturer des motifs temporels de court terme tout en
+préservant un recouvrement suffisant entre séquences consécutives.
+
+\subsection{Ingénierie de caractéristiques}
+
+Pour enrichir la représentation des signaux bruts des capteurs, des
+caractéristiques guidées par le domaine sont construites, notamment :
+
+\begin{itemize}
+    \item Le gradient de pression ($\Delta P_t$) pour capturer les variations brusques de pression,
+    \item La normalisation du débit (z-score) pour mettre en évidence les anomalies relatives,
+    \item Le ratio pression/débit pour modéliser les relations hydrauliques.
+\end{itemize}
+
+Ces caractéristiques sont concaténées aux variables d'origine pour former des
+vecteurs de caractéristiques enrichis à chaque pas de temps.
+
+\subsection{Architecture du modèle}
+
+Le modèle proposé intègre des composantes convolutionnelles, récurrentes et
+basées sur l'attention afin de capturer à la fois les dépendances temporelles
+locales et globales.
+
+\subsubsection{Couches convolutionnelles}
+
+Les séquences d'entrée sont d'abord traitées par des couches convolutionnelles
+unidimensionnelles afin d'extraire les motifs temporels locaux :
+
+\begin{equation}
+h^{(c)} = \text{ReLU}(\text{Conv1D}(\mathbf{X}))
+\end{equation}
+
+Ces couches agissent comme des extracteurs de caractéristiques, en capturant des
+variations de court terme telles que les chutes de pression et les pics de débit.
+
+\subsubsection{LSTM bidirectionnel}
+
+Les caractéristiques extraites sont ensuite passées à un LSTM bidirectionnel
+(BiLSTM), qui capture les dépendances de long terme dans les directions avant
+et arrière :
+
+\begin{equation}
+h^{(l)} = \text{BiLSTM}(h^{(c)})
+\end{equation}
+
+Cela permet au modèle d'intégrer l'information contextuelle provenant à la fois
+des pas de temps passés et futurs dans chaque séquence.
+
+\subsubsection{Mécanisme d'auto-attention}
+
+Pour mettre l'accent sur les pas de temps les plus informatifs, un mécanisme
+d'auto-attention est appliqué aux sorties du BiLSTM :
+
+\begin{equation}
+\alpha_t = \frac{\exp(e_t)}{\sum_{k} \exp(e_k)}, \quad
+e_t = \mathbf{v}^\top \tanh(\mathbf{W} h^{(l)}_t)
+\end{equation}
+
+Le vecteur de contexte résultant est calculé comme suit :
+
+\begin{equation}
+c = \sum_t \alpha_t h^{(l)}_t
+\end{equation}
+
+Ce mécanisme permet au modèle de se concentrer sur des signatures de fuite
+temporellement localisées tout en préservant l'information globale de la séquence.
+
+\subsubsection{Couche de sortie}
+
+Le vecteur de contexte passe ensuite par une couche entièrement connectée avec
+activation sigmoïde pour produire la prédiction finale :
+
+\begin{equation}
+\hat{y} = \sigma(\mathbf{W}_o c + b)
+\end{equation}
+
+où $\hat{y} \in [0,1]$ représente la probabilité de fuite.
+
+\subsection{Stratégie d'entraînement}
+
+Le modèle est entraîné avec la fonction de perte entropie croisée binaire :
+
+\begin{equation}
+\mathcal{L} = - \frac{1}{N} \sum_{i=1}^{N} \left[
+y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i)
+\right]
+\end{equation}
+
+Le jeu de données est découpé en ensembles d'entraînement, de calibration et de
+test à l'aide d'une séparation temporelle pour éviter les fuites de données.
+L'arrêt anticipé est appliqué selon l'AUC-PR de validation, et une stratégie
+d'ajustement du taux d'apprentissage est utilisée pour améliorer la convergence.
+
+Tous les modèles de référence sont entraînés avec les mêmes découpages de données
+et la même chaîne de prétraitement afin de garantir une comparaison de benchmark
+équitable.
+
+\subsection{Calibration du seuil}
+
+Au lieu d'utiliser un seuil fixe (par exemple 0.5), le seuil de décision est
+optimisé sur un ensemble de calibration pour équilibrer précision et rappel :
+
+\begin{equation}
+\hat{y}_{final} =
+\begin{cases}
+1 & \text{if } \hat{y} \geq \tau \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+
+Cela permet au modèle d'opérer selon différents compromis en fonction des
+exigences applicatives, comme la priorité à la sensibilité de détection ou la
+minimisation des fausses alertes.
+
+\subsection{Détails d'implémentation}
+
+Le modèle est implémenté à l'aide d'un framework de deep learning avec une
+architecture compacte comprenant environ 23{,}000 paramètres entraînables.
+L'optimisation est effectuée avec l'optimiseur Adam, et l'entraînement est
+réalisé par descente de gradient en mini-lots sur plusieurs époques.
+
+Toutes les expériences sont menées dans des conditions cohérentes afin d'assurer
+la reproductibilité et une comparaison équitable entre les différents modèles.

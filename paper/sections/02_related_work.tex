@@ -14,7 +14,9 @@ acoustic sensing, and flow balance estimation have been widely used in practice.
 These approaches typically depend on domain-specific knowledge and require
 accurate physical models of the water network. While effective in controlled
 environments, they often struggle in real-world scenarios due to noise,
-uncertainty, and the complexity of urban infrastructure systems.
+uncertainty, and the complexity of urban infrastructure systems. Moreover,
+their reliance on predefined thresholds limits their adaptability to dynamic
+operating conditions.
 
 \subsection{Machine Learning Approaches}
 
@@ -23,8 +25,13 @@ have been introduced for leak detection tasks. Classical models such as
 Support Vector Machines (SVM), Random Forests, and Gradient Boosting have been
 applied to classify normal and anomalous behavior based on extracted features.
 These approaches improve scalability compared to rule-based systems but often
-require extensive feature engineering and may fail to capture temporal
-dependencies inherent in time-series data.
+require extensive feature engineering and are limited in their ability to model
+temporal dependencies inherent in time-series data.
+
+In addition, classical machine learning models typically operate on aggregated
+or handcrafted features, which may fail to capture the sequential structure and
+temporal evolution of leak events. This limitation motivates the use of
+sequence-based models capable of directly learning from raw temporal data.
 
 \subsection{Deep Learning for Time-Series Leak Detection}
 
@@ -35,15 +42,17 @@ particularly Long Short-Term Memory (LSTM) networks, are capable of modeling
 long-term dependencies.
 
 Several studies have explored hybrid architectures combining CNN and LSTM
-to leverage both spatial and temporal feature extraction. These models have
-demonstrated improved performance compared to standalone approaches, especially
-in complex monitoring environments.
+to leverage both local feature extraction and temporal modeling. These models
+have demonstrated improved performance compared to standalone approaches,
+especially in complex monitoring environments where leak signatures are
+distributed over time.
 
 More recently, attention mechanisms have been introduced to enhance sequence
 modeling by allowing models to focus on the most relevant time steps. Attention
 has been successfully applied in various time-series applications, improving both
 performance and interpretability. However, its application to water leak
-detection remains relatively limited.
+detection remains relatively limited, and its benefits have not been extensively
+validated through systematic comparisons with alternative models.
 
 \subsection{Limitations of Existing Work}
 
@@ -55,7 +64,9 @@ requirements such as minimizing false alarms.
 
 In addition, some approaches do not ensure strict separation between training and
 test data in temporal settings, potentially leading to data leakage and
-over-optimistic performance estimates.
+over-optimistic performance estimates. Another important limitation is the lack
+of comprehensive benchmark comparisons, making it difficult to assess the true
+effectiveness of proposed models relative to alternative approaches.
 
 \subsection{Proposed Approach}
 
@@ -67,8 +78,11 @@ detection. In contrast to prior work, the proposed approach integrates:
     \item A combination of CNN and BiLSTM to capture both local and long-range temporal patterns,
     \item A self-attention mechanism to identify the most informative time steps,
     \item A leakage-free temporal data splitting strategy,
-    \item An imbalance-aware evaluation framework using AUC-PR and threshold calibration.
+    \item An imbalance-aware evaluation framework using AUC-PR and threshold calibration,
+    \item A comprehensive benchmark comparison against classical and deep learning models.
 \end{itemize}
 
 This combination enables robust and reliable leak detection while maintaining a
-balanced trade-off between detection sensitivity and false alarm rate.
+balanced trade-off between detection sensitivity and false alarm rate, and
+provides a more complete evaluation of model effectiveness in real-world
+conditions.

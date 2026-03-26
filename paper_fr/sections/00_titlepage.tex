@@ -1,0 +1,70 @@
+% =============================================================================
+% Title Block (spans both columns via \twocolumn[...])
+% =============================================================================
+\twocolumn[{
+\begin{flushleft}
+{\small
+Department of Software Engineering\\
+Faculty of Sciences and Techniques Tangier\\
+Abdelmalek Essadi University, Morocco\\
+22/03/2026\par
+
+\vspace{2.5em}
+
+{\color{titleblue}\Huge\bfseries Détection des fuites d'eau dans les réseaux\\[0.2em]
+urbains de distribution par apprentissage profond\\[0.2em]
+avec une architecture CNN-BiLSTM et auto-attention\\[0.2em]
+\par}
+
+\vspace{1.5em}
+
+{\large\bfseries Encadré par : Pr. Mostafa EZZIYANI\\[0.8em]
+Réalisé par : ZARQI Ezzoubair, El Gharib Mahmoud\par}
+
+}
+\end{flushleft}
+
+\vspace{1.5em}
+
+% Abstract
+\begin{leftbar}
+\textbf{\textcolor{headingblue}{RÉSUMÉ}} Cet article présente un cadre complet
+d'apprentissage profond pour la détection automatique des fuites dans les réseaux
+urbains de distribution d'eau à partir de séries temporelles multivariées issues
+de capteurs. L'approche proposée intègre une ingénierie de caractéristiques guidée
+par le domaine, une modélisation séquentielle par fenêtre glissante, et une
+architecture hybride combinant des réseaux de neurones convolutionnels (CNN),
+une mémoire longue à court terme bidirectionnelle (BiLSTM) et un mécanisme
+d'auto-attention.
+
+Le composant CNN capture les motifs temporels locaux, le BiLSTM modélise les
+dépendances de long terme, et le mécanisme d'attention met en évidence les pas
+de temps les plus informatifs dans chaque séquence. En outre, une stratégie de
+séparation temporelle sans fuite de données et une calibration du seuil de
+décision sont utilisées afin d'assurer une évaluation robuste et réaliste en
+présence de déséquilibre de classes.
+
+Les résultats expérimentaux montrent que la méthode proposée obtient de très
+bonnes performances, avec une AUC-PR de $0.9583$ et un score F1 de $0.9318$,
+tout en maintenant un rappel élevé. De plus, les comparaisons de benchmark face
+à des modèles classiques de machine learning et à des architectures alternatives
+d'apprentissage profond confirment l'efficacité du modèle hybride proposé.
+
+Globalement, ce cadre propose une solution pratique et évolutive pour les
+systèmes réels de surveillance intelligente de l'eau, contribuant à améliorer la
+fiabilité des infrastructures et à réduire les pertes d'eau.
+\end{leftbar}
+
+\vspace{1em}
+
+% Keywords
+\begin{leftbar}
+\textbf{\textcolor{headingblue}{MOTS-CLÉS}} Détection des fuites d'eau,
+Apprentissage profond, CNN-BiLSTM, Auto-attention,
+Séries temporelles multivariées, Fenêtre glissante,
+Classification déséquilibrée, Calibration du seuil,
+Comparaison de benchmark, Réseaux d'eau intelligents;
+\end{leftbar}
+
+\vspace{2.5em}
+}]

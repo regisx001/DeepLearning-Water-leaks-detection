@@ -11,7 +11,7 @@ Abdelmalek Essadi University, Morocco\\
 
 \vspace{2.5em}
 
-{\color{titleblue}\Huge\bfseries Detection of Water Leaks in Urban\\[0.2em]
+{\color{titleblue}\Huge\bfseries Deep Learning-Based Detection of Water Leaks in Urban\\[0.2em]
 Distribution Networks Using a CNN-BiLSTM\\[0.2em]
 Architecture with Self-Attention\\[0.2em]
 \par}
@@ -30,27 +30,26 @@ Made By: ZARQI Ezzoubair, El Gharib Mahmoud\par}
 \begin{leftbar}
 \textbf{\textcolor{headingblue}{ABSTRACT}} This paper presents an end-to-end
 deep learning framework for automatic leak detection in urban water distribution
-networks using multivariate sensor time series. The dataset consists of 5{,}590
-samples collected from ten sensors over a three-week monitoring period, including
-774 labelled leak events (13.8\,\%). The proposed pipeline integrates domain-informed
-feature engineering, sliding-window sequence construction ($W=20$, $S=5$), and
-a temporal train/calibration/test split to prevent data leakage.
+networks using multivariate sensor time-series data. The proposed approach
+integrates domain-informed feature engineering, sliding-window sequence modeling,
+and a hybrid architecture combining Convolutional Neural Networks (CNN),
+Bidirectional Long Short-Term Memory (BiLSTM), and a self-attention mechanism.
 
-We propose a hybrid deep learning architecture combining Convolutional Neural
-Networks (CNN), Bidirectional Long Short-Term Memory (BiLSTM), and a self-attention
-mechanism. The CNN layers capture local temporal patterns, the BiLSTM models
-long-range bidirectional dependencies, and the attention mechanism highlights
-the most informative time steps. The model is trained using binary cross-entropy
-and evaluated with imbalance-aware metrics, including AUC-PR and calibrated
-decision thresholds.
+The CNN component captures local temporal patterns, the BiLSTM models long-range
+dependencies, and the attention mechanism highlights the most informative time
+steps within each sequence. In addition, a leakage-free temporal data splitting
+strategy and threshold calibration are employed to ensure robust and realistic
+evaluation under class imbalance.
 
-Experimental results demonstrate strong performance, achieving AUC-ROC $= 0.9412$
-and AUC-PR $= 0.9583$. At the selected operating threshold $\tau = 0.0333$, the
-model attains precision $= 0.9647$, recall $= 0.9011$, and F1-score $= 0.9318$,
-while maintaining a low false alarm rate of $0.0231$. These results highlight
-a well-balanced trade-off between detection sensitivity and false alarms,
-indicating that the proposed approach is suitable for reliable deployment in
-real-world smart water monitoring systems.
+Experimental results demonstrate that the proposed method achieves strong
+performance, with an AUC-PR of $0.9583$ and an F1-score of $0.9318$, while
+maintaining high recall. Furthermore, benchmark comparisons against classical
+machine learning models and alternative deep learning architectures confirm
+the effectiveness of the proposed hybrid model.
+
+Overall, the proposed framework provides a practical and scalable solution for
+real-world smart water monitoring systems, contributing to improved infrastructure
+reliability and reduced water loss.
 \end{leftbar}
 
 \vspace{1em}
@@ -59,7 +58,8 @@ real-world smart water monitoring systems.
 \begin{leftbar}
 \textbf{\textcolor{headingblue}{KEY-WORDS}} Water Leak Detection, Deep Learning,
 CNN-BiLSTM, Self-Attention, Multivariate Time Series, Sliding Window,
-Imbalanced Classification, Threshold Calibration, Smart Water Networks;
+Imbalanced Classification, Threshold Calibration, Benchmark Comparison,
+Smart Water Networks;
 \end{leftbar}
 
 \vspace{2.5em}

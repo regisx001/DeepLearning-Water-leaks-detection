@@ -5,9 +5,11 @@
 The proposed framework is an end-to-end pipeline for automatic leak detection
 from multivariate time-series sensor data. It consists of four main stages:
 (i) data preprocessing and feature engineering, (ii) sequence construction using
-a sliding-window approach, (iii) deep learning-based classification using a
-hybrid CNN-BiLSTM-Attention architecture, and (iv) threshold calibration for
-operational decision-making.
+a sliding-window approach, (iii) classification using a hybrid CNN-BiLSTM-Attention
+architecture, and (iv) threshold calibration for operational decision-making.
+
+The same preprocessing and data splitting strategy is applied to all models
+considered in this study to ensure fair comparison in the benchmark evaluation.
 
 \subsection{Sliding Window Formulation}
 
@@ -28,11 +30,11 @@ with corresponding label:
 y_t \in \{0,1\}
 \end{equation}
 
-where $y_t = 1$ indicates the presence of a leak within the window.
+where $y_t = 1$ indicates the presence of at least one leak event within the window.
 
-In this work, we use a window size of $W = 20$ and stride $S = 5$, enabling the
-model to capture short-term temporal patterns while maintaining sufficient
-sample diversity.
+In this work, a window size of $W = 20$ and stride $S = 5$ are used, allowing
+the model to capture short-term temporal patterns while preserving sufficient
+overlap between consecutive sequences.
 
 \subsection{Feature Engineering}
 
@@ -40,13 +42,13 @@ To enhance the representation of raw sensor signals, domain-informed features
 are constructed, including:
 
 \begin{itemize}
-    \item Pressure gradient to capture abrupt drops,
-    \item Flow rate normalization (z-score) to detect anomalies,
+    \item Pressure gradient ($\Delta P_t$) to capture abrupt pressure variations,
+    \item Flow rate normalization (z-score) to highlight relative anomalies,
     \item Pressure-to-flow ratio to model hydraulic relationships.
 \end{itemize}
 
-These features are combined with the original variables to form enriched input
-vectors for each time step.
+These features are concatenated with the original variables to form enriched
+feature vectors at each time step.
 
 \subsection{Model Architecture}
 
@@ -62,8 +64,8 @@ to extract local temporal patterns:
 h^{(c)} = \text{ReLU}(\text{Conv1D}(\mathbf{X}))
 \end{equation}
 
-These layers act as feature extractors, identifying short-term variations such
-as pressure drops or flow spikes.
+These layers act as feature extractors, capturing short-term variations such as
+pressure drops and flow spikes.
 
 \subsubsection{Bidirectional LSTM}
 
@@ -74,27 +76,27 @@ captures long-range dependencies in both forward and backward directions:
 h^{(l)} = \text{BiLSTM}(h^{(c)})
 \end{equation}
 
-This allows the model to consider both past and future context within each
-sequence, which is particularly important for detecting gradual leak patterns.
+This enables the model to incorporate contextual information from both past and
+future timesteps within each sequence.
 
 \subsubsection{Self-Attention Mechanism}
 
-To focus on the most informative time steps, a self-attention mechanism is
-applied over the BiLSTM outputs:
+To emphasize the most informative time steps, a self-attention mechanism is
+applied to the BiLSTM outputs:
 
 \begin{equation}
 \alpha_t = \frac{\exp(e_t)}{\sum_{k} \exp(e_k)}, \quad
 e_t = \mathbf{v}^\top \tanh(\mathbf{W} h^{(l)}_t)
 \end{equation}
 
-The final context vector is computed as a weighted sum:
+The resulting context vector is computed as:
 
 \begin{equation}
 c = \sum_t \alpha_t h^{(l)}_t
 \end{equation}
 
-This mechanism enables the model to prioritize relevant temporal segments
-associated with leak events.
+This mechanism allows the model to focus on temporally localized leak signatures
+while preserving global sequence information.
 
 \subsubsection{Output Layer}
 
@@ -117,11 +119,12 @@ y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i)
 \right]
 \end{equation}
 
-To ensure robust generalization, the dataset is split into training,
-calibration, and test sets using temporal separation, preventing data leakage.
+The dataset is split into training, calibration, and test sets using temporal
+separation to prevent data leakage. Early stopping is applied based on
+validation AUC-PR, and learning rate scheduling is used to improve convergence.
 
-Early stopping is applied based on the validation AUC-PR, and learning rate
-scheduling is used to stabilize training.
+All baseline models are trained using the same data splits and preprocessing
+pipeline to ensure a fair benchmark comparison.
 
 \subsection{Threshold Calibration}
 
@@ -136,14 +139,16 @@ optimized on a calibration set to balance precision and recall:
 \end{cases}
 \end{equation}
 
-This allows the model to operate under different regimes depending on
-application requirements, such as minimizing false alarms or maximizing
-detection sensitivity.
+This enables the model to operate under different trade-offs depending on
+application requirements, such as prioritizing detection sensitivity or
+minimizing false alarms.
 
 \subsection{Implementation Details}
 
 The model is implemented using a deep learning framework with a compact
 architecture comprising approximately 23{,}000 trainable parameters.
 Optimization is performed using the Adam optimizer, and training is conducted
-over multiple epochs with mini-batch updates.
+using mini-batch gradient descent over multiple epochs.
 
+All experiments are conducted under consistent settings to ensure reproducibility
+and fair comparison across different models.
