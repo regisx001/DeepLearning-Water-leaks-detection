@@ -1,0 +1,98 @@
+\section{Travaux connexes}
+
+La détection automatique des fuites dans les réseaux de distribution d'eau a
+été largement étudiée, avec des approches allant des techniques traditionnelles
+de traitement du signal aux modèles modernes d'apprentissage automatique orientés
+données. Les méthodes existantes peuvent être classées en trois grandes
+catégories : approches basées sur la physique, méthodes classiques de machine
+learning, et modèles fondés sur l'apprentissage profond.
+
+\subsection{Méthodes traditionnelles et basées sur la physique}
+
+Les premiers travaux en détection de fuites reposaient principalement sur la
+modélisation hydraulique et les techniques de traitement du signal. Les méthodes
+basées sur l'analyse des résidus de pression, la détection acoustique et
+l'estimation du bilan de débit ont été largement utilisées en pratique. Ces
+approches dépendent généralement d'une expertise métier et nécessitent des
+modèles physiques précis du réseau d'eau. Bien qu'efficaces en environnement
+contrôlé, elles rencontrent souvent des difficultés en conditions réelles en
+raison du bruit, de l'incertitude et de la complexité des infrastructures
+urbaines. De plus, leur dépendance à des seuils prédéfinis limite leur
+adaptabilité aux conditions d'exploitation dynamiques.
+
+\subsection{Approches de machine learning}
+
+Avec la disponibilité croissante des données capteurs, des techniques de machine
+learning ont été introduites pour la détection des fuites. Des modèles classiques
+tels que les machines à vecteurs de support (SVM), les forêts aléatoires et le
+gradient boosting ont été appliqués pour classifier les comportements normaux
+et anormaux à partir de caractéristiques extraites. Ces approches améliorent le
+passage à l'échelle par rapport aux systèmes à base de règles, mais nécessitent
+souvent une ingénierie de caractéristiques importante et restent limitées dans
+leur capacité à modéliser les dépendances temporelles inhérentes aux séries
+temporelles.
+
+Par ailleurs, les modèles classiques opèrent généralement sur des variables
+agrégées ou construites manuellement, qui peuvent ne pas capturer la structure
+séquentielle et l'évolution temporelle des événements de fuite. Cette limite
+motive l'usage de modèles séquentiels capables d'apprendre directement à partir
+de données temporelles brutes.
+
+\subsection{Apprentissage profond pour la détection de fuites en séries temporelles}
+
+Les avancées récentes en apprentissage profond ont permis une modélisation plus
+efficace des séries temporelles multivariées. Les réseaux de neurones
+convolutionnels (CNN) sont utilisés pour capturer les motifs temporels locaux,
+tandis que les réseaux récurrents (RNN), en particulier les réseaux Long
+Short-Term Memory (LSTM), sont capables de modéliser les dépendances de long
+terme.
+
+Plusieurs études ont exploré des architectures hybrides combinant CNN et LSTM
+afin de tirer parti à la fois de l'extraction locale de caractéristiques et de
+la modélisation temporelle. Ces modèles ont montré de meilleures performances
+que les approches isolées, en particulier dans des environnements de surveillance
+complexes où les signatures de fuite sont distribuées dans le temps.
+
+Plus récemment, les mécanismes d'attention ont été introduits pour renforcer la
+modélisation séquentielle en permettant aux modèles de se concentrer sur les pas
+de temps les plus pertinents. L'attention a été appliquée avec succès dans
+diverses applications de séries temporelles, améliorant à la fois les
+performances et l'interprétabilité. Cependant, son application à la détection
+de fuites d'eau reste encore limitée, et ses bénéfices n'ont pas été largement
+validés par des comparaisons systématiques avec des modèles alternatifs.
+
+\subsection{Limites des travaux existants}
+
+Malgré ces avancées, plusieurs limites persistent. De nombreuses études ne
+traitent pas correctement le déséquilibre de classes, qui constitue un défi
+majeur en détection de fuites où les événements sont relativement rares. En
+outre, l'évaluation est souvent limitée à des métriques centrées sur l'accuracy,
+qui ne reflètent pas nécessairement les exigences opérationnelles réelles,
+comme la minimisation des fausses alertes.
+
+De plus, certaines approches ne garantissent pas une séparation stricte entre
+données d'entraînement et de test dans un contexte temporel, ce qui peut mener
+à des fuites de données et à des estimations de performance trop optimistes.
+Une autre limite importante est l'absence de comparaisons de benchmark complètes,
+ce qui rend difficile l'évaluation de l'efficacité réelle des modèles proposés
+par rapport aux approches alternatives.
+
+\subsection{Approche proposée}
+
+Pour répondre à ces limites, cet article propose une architecture hybride
+CNN-BiLSTM augmentée par un mécanisme d'auto-attention pour la détection de
+fuites à partir de séries temporelles multivariées. Contrairement aux travaux
+précédents, l'approche proposée intègre :
+
+\begin{itemize}
+    \item Une combinaison de CNN et BiLSTM pour capturer à la fois les motifs temporels locaux et de long terme,
+    \item Un mécanisme d'auto-attention pour identifier les pas de temps les plus informatifs,
+    \item Une stratégie de découpage temporel sans fuite de données,
+    \item Un cadre d'évaluation adapté au déséquilibre de classes, utilisant l'AUC-PR et la calibration du seuil,
+    \item Une comparaison de benchmark complète face à des modèles classiques et d'apprentissage profond.
+\end{itemize}
+
+Cette combinaison permet une détection robuste et fiable des fuites tout en
+maintenant un compromis équilibré entre sensibilité de détection et taux de
+fausses alertes, et fournit une évaluation plus complète de l'efficacité du
+modèle en conditions réelles.

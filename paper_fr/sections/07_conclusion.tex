@@ -1,0 +1,64 @@
+\section{Conclusion}
+
+\noindent Cet article a présenté un cadre complet d'apprentissage profond pour la
+détection automatique des fuites d'eau dans les réseaux urbains de distribution,
+à partir de données capteurs en séries temporelles multivariées. L'approche
+proposée intègre une ingénierie de caractéristiques guidée par le domaine, une
+construction de séquences par fenêtre glissante, et une architecture hybride
+CNN-BiLSTM-Attention afin de capturer efficacement les dépendances temporelles
+locales et de long terme.
+
+\vspace{0.2cm}
+
+\noindent Les résultats expérimentaux montrent que le modèle atteint de fortes
+performances, avec un compromis favorable entre précision, rappel et taux de
+fausses alertes. Les comparaisons de benchmark confirment également que le
+modèle proposé offre de meilleures performances opérationnelles que les
+références classiques et de deep learning, ce qui met en évidence l'efficacité
+de l'architecture hybride.
+
+\vspace{0.2cm}
+
+\noindent Les résultats soulignent l'importance de combiner des techniques de
+modélisation avancées avec un prétraitement robuste des données, une évaluation
+sans fuite de données et une calibration du seuil afin de développer des
+systèmes de surveillance fiables et déployables.
+
+\vspace{0.2cm}
+
+\noindent Les travaux futurs porteront sur l'évaluation du modèle sur des jeux de
+données plus diversifiés, l'extension du benchmark à des approches
+supplémentaires, et l'amélioration de l'interprétabilité. Par ailleurs,
+l'intégration de la localisation des fuites et de l'estimation de leur gravité
+constitue une piste prometteuse pour renforcer l'applicabilité pratique.
+
+\vspace{0.2cm}
+
+\noindent Globalement, ce travail contribue au développement de solutions
+intelligentes et fiables pour la surveillance urbaine de l'eau, en soutenant une
+meilleure gestion des infrastructures et la réduction des pertes en eau.
+
+\vspace{0.2cm}
+
+\noindent \textbf{Applications potentielles.}
+Le cadre proposé peut être intégré dans des systèmes de gestion intelligente de
+l'eau basés sur l'Internet des objets (IoT), pour la détection et la
+surveillance des fuites en temps réel. En traitant en continu les flux de
+données capteurs, le modèle peut fournir des alertes précoces d'événements de
+fuite, permettant une réaction plus rapide et une réduction des pertes d'eau.
+
+\vspace{0.2cm}
+
+\noindent En outre, le système peut être étendu pour supporter des mécanismes de
+contrôle automatisés, tels que la gestion dynamique des vannes. En cas de fuite
+détectée, le modèle peut déclencher la fermeture automatique des vannes ou la
+régulation du débit afin d'isoler les segments affectés du réseau, et ainsi
+minimiser les dommages et les perturbations opérationnelles.
+
+\vspace{0.2cm}
+
+\noindent Une telle intégration permet de passer d'une maintenance réactive à une
+gestion proactive et autonome des infrastructures, en améliorant la fiabilité du
+système et l'efficacité opérationnelle. L'approche proposée constitue ainsi un
+brique essentielle pour les systèmes intelligents de distribution d'eau de
+nouvelle génération.

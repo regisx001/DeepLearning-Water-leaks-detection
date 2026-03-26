@@ -1,0 +1,85 @@
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+% --- Language and Font Packages ---
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{french}
+\setotherlanguage{arabic}
+
+% Set fonts
+\setmainfont{Times New Roman}
+\newfontfamily\arabicfont[Script=Arabic]{Arial}
+
+% --- Formatting Packages ---
+\usepackage[margin=0.75in, top=1.3in, bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}     % For custom list formatting
+\usepackage{amsmath}      % For math environments
+\usepackage{lettrine}     % For the large drop-cap letter
+\usepackage{xcolor}       % For the custom blue colors
+\usepackage{mdframed}     % For the borders next to the abstract
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{references.bib}
+% --- Custom Colors ---
+\definecolor{titleblue}{HTML}{2B79B9}   % Darker blue for the main title & line
+\definecolor{headingblue}{HTML}{84BEE7} % Lighter blue for sections & abstract
+
+% --- Header and Footer Setup ---
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{45pt}
+\fancyhead[L]{\includegraphics[height=1.2cm]{images/fstt_logo.png}}
+\fancyhead[R]{\includegraphics[height=1.2cm]{images/maisd_logo.png}}
+\renewcommand{\headrule}{%
+    \vspace{2pt}\color{titleblue}\hrule height 1.5pt
+}
+\fancyfoot[C]{\thepage}
+
+% --- Section Title Formatting ---
+\renewcommand{\thesection}{\Roman{section}}
+\titleformat{\section}
+  {\color{headingblue}\normalfont\large\bfseries\uppercase}{\thesection.}{1em}{}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}{\thesubsection.}{1em}{}
+
+% --- Custom Environment for Abstract & Keywords ---
+\newmdenv[
+  topline=false,
+  bottomline=false,
+  rightline=false,
+  skipabove=0pt,
+  skipbelow=0pt,
+  linecolor=headingblue,
+  linewidth=3pt,
+  innertopmargin=0pt,
+  innerbottommargin=0pt,
+  innerrightmargin=0pt,
+  innerleftmargin=10pt
+]{leftbar}
+
+% =============================================================================
+\begin{document}
+
+\input{sections/00_titlepage}   % Title, Abstract, Keywords
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_dataset}
+\input{sections/04_methodology}
+\input{sections/05_results}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+\nocite{*}
+\printbibliography
+
+\end{document}

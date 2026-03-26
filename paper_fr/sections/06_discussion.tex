@@ -1,0 +1,40 @@
+\section{Discussion}
+
+\noindent Les résultats expérimentaux montrent que l'architecture
+CNN-BiLSTM-Attention proposée est efficace pour détecter les fuites d'eau dans
+des séries temporelles multivariées. Le modèle atteint un fort pouvoir
+discriminant et offre un compromis équilibré entre précision, rappel et taux de
+fausses alertes, ce qui est essentiel pour les systèmes de surveillance réels.
+
+\vspace{0.2cm}
+
+\noindent La comparaison de benchmark met en évidence des différences clés entre les
+approches. Bien que Random Forest obtienne une AUC-PR élevée, il présente un
+rappel et un score F1 plus faibles au point de fonctionnement sélectionné. La
+régression logistique est compétitive grâce à l'ingénierie de caractéristiques,
+mais elle ne modélise pas correctement les dépendances temporelles. En revanche,
+le modèle proposé offre le meilleur équilibre global, confirmant l'intérêt de
+combiner des mécanismes convolutionnels, récurrents et d'attention.
+
+\vspace{0.2cm}
+
+\noindent Un autre aspect important est l'utilisation de la calibration du seuil,
+qui permet au modèle de s'adapter à différentes exigences opérationnelles en
+contrôlant le compromis entre sensibilité de détection et fausses alertes.
+Cette flexibilité est essentielle pour un déploiement pratique dans des systèmes
+réels.
+
+\vspace{0.2cm}
+
+\noindent Malgré ces résultats prometteurs, certaines limites subsistent. Le jeu de
+données est restreint à une période de surveillance spécifique, ce qui peut
+limiter la généralisation. De plus, la comparaison de benchmark pourrait être
+étendue à davantage de modèles, et l'interprétabilité de l'architecture de deep
+learning demeure limitée.
+
+\vspace{0.2cm}
+
+\noindent Globalement, les résultats confirment que les architectures hybrides de
+deep learning sont bien adaptées à la détection de fuites en séries temporelles,
+en particulier lorsqu'elles sont combinées à des stratégies robustes de
+prétraitement et d'évaluation.
